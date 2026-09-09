@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carnival of Dreams — Sales Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<style>
+  :root{
+    --bg:#F4F4F1; --surface:#FFFFFF; --surface-muted:#FAFAF9;
+    --ink:#141412; --ink-muted:#65645D; --ink-faint:#9B9A92;
+    --line:#E1E0D9; --line-strong:#141412;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',-apple-system,sans-serif; padding:0 0 70px; font-variant-numeric:tabular-nums;}
+  h1,.num{font-family:'Fraunces',serif;}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 20px;}
+
+  /* Header */
+  .topbar{border-bottom:1px solid var(--line-strong); background:var(--surface);}
+  .topbar-inner{max-width:1180px; margin:0 auto; padding:22px 20px; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;}
+  .brand{display:flex; align-items:center; gap:13px;}
+  .brand-badge{width:42px; height:42px; background:var(--ink); color:#fff; border-radius:9px; display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-weight:600; font-size:16px; flex-shrink:0;}
+  .brand h1{font-size:19px; font-weight:600; margin:0; line-height:1.2;}
+  .brand p{color:var(--ink-muted); font-size:12.5px; margin:3px 0 0;}
+
+  .banner{background:var(--ink); color:#fff; border-radius:10px; padding:12px 16px; font-size:13px; margin:20px 0; display:none;}
+  .banner code{background:rgba(255,255,255,0.15); padding:2px 6px; border-radius:4px;}
+
+  /* Period control */
+  .period-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:24px 0 22px; flex-wrap:wrap;}
+  .seg{display:flex; gap:2px; background:var(--surface-muted); border:1px solid var(--line); border-radius:9px; padding:3px;}
+  .seg button{border:none; background:transparent; color:var(--ink-muted); font-size:13px; font-weight:600; padding:8px 15px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif;}
+  .seg button.active{background:var(--ink); color:#fff;}
+  .period-sub{font-size:12.5px; color:var(--ink-faint);}
+
+  /* KPI row */
+  .kpi-row{display:grid; grid-template-columns:repeat(4, 1fr); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:32px; background:var(--surface);}
+  .kpi-cell{padding:20px 22px; border-right:1px solid var(--line);}
+  .kpi-cell:last-child{border-right:none;}
+  .kpi-cell .lbl{font-size:12.5px; color:var(--ink-muted); margin-bottom:8px;}
+  .kpi-cell .num{font-size:26px; font-weight:600;}
+
+  .section-title{font-family:'Fraunces',serif; font-size:17px; font-weight:600; margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+
+  /* Category cards */
+  .cat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:32px;}
+  .cat-card{background:var(--surface); padding:18px 20px;}
+  .cat-card .top{display:flex; align-items:center; gap:8px; margin-bottom:12px;}
+  .cat-card .dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+  .cat-card .name{font-size:13px; font-weight:600; color:var(--ink-muted);}
+  .cat-card .sale{font-size:23px; font-weight:600; font-family:'Fraunces',serif; margin-bottom:12px;}
+  .cat-card .split{display:flex; gap:16px; font-size:12px; color:var(--ink-muted); border-top:1px solid var(--bg); padding-top:11px; flex-wrap:wrap;}
+  .cat-card .split b{color:var(--ink); font-weight:600;}
+  .cat-card .foot{font-size:11.5px; color:var(--ink-faint); margin-top:8px;}
+
+  /* Charts */
+  .charts-grid{display:grid; grid-template-columns:1.6fr 1fr 1fr; gap:16px; margin-bottom:32px;}
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px;}
+  .card-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
+  .card-title{font-size:13.5px; font-weight:600; color:var(--ink);}
+  .chart-box{position:relative; height:225px;}
+  .legend-row{display:flex; gap:14px; flex-wrap:wrap; margin-top:12px; font-size:11.5px; color:var(--ink-muted);}
+  .legend-row span{display:flex; align-items:center; gap:5px;}
+  .legend-row i{width:8px; height:8px; border-radius:2px; display:inline-block;}
+
+  /* Breakdown */
+  .breakdown{border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--surface); margin-bottom:20px;}
+  .bd-row{display:flex; justify-content:space-between; align-items:baseline; gap:16px; padding:13px 20px; border-bottom:1px solid var(--bg);}
+  .bd-row:last-child{border-bottom:none;}
+  .bd-row.total{background:var(--surface-muted); font-weight:600;}
+  .bd-label{font-size:13px; color:var(--ink-muted);}
+  .bd-label b{color:var(--ink); font-weight:600;}
+  .bd-formula{font-size:11.5px; color:var(--ink-faint); margin-top:2px;}
+  .bd-value{font-size:15px; font-weight:600; white-space:nowrap; flex-shrink:0;}
+  .bd-note{font-size:11.5px; color:var(--ink-faint); padding:10px 20px; border-top:1px dashed var(--line);}
+
+  /* Table */
+  .table-wrap{max-height:460px; overflow:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface);}
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th{text-align:right; font-size:11px; color:var(--ink-muted); font-weight:600; padding:11px 12px; border-bottom:1px solid var(--line-strong); white-space:nowrap; position:sticky; top:0; background:var(--surface);}
+  th:first-child, th:last-child{text-align:left;}
+  td{padding:10px 12px; border-bottom:1px solid var(--bg); white-space:nowrap; text-align:right;}
+  td:first-child, td:last-child{text-align:left;}
+  tr:hover td{background:var(--surface-muted);}
+  .empty{color:var(--ink-faint); font-size:13px; padding:28px 0; text-align:center;}
+  .muted-cell{color:var(--ink-faint);}
+
+  @media (max-width:960px){ .charts-grid{grid-template-columns:1fr;} .kpi-row{grid-template-columns:repeat(2,1fr);} .kpi-cell{border-right:1px solid var(--line);} .kpi-cell:nth-child(2n){border-right:none;} .bd-row{flex-direction:column; align-items:flex-start; gap:4px;} }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-badge">CD</div>
+        <div>
+          <h1>Carnival of Dreams</h1>
+          <p>Sales dashboard — cafe, indoor gaming zone, outdoor amusement park, entries</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <div class="banner" id="setupBanner">
+      Not connected yet. Set your Sheet to "Anyone with the link → Viewer", then paste your Sheet ID and tab gid into
+      <code>SHEET_ID</code> and <code>ENTRIES_GID</code> near the top of this file's &lt;script&gt; section.
+    </div>
+
+    <div class="period-row">
+      <div class="seg" id="periodSeg">
+        <button data-p="today" class="active">Today</button>
+        <button data-p="week">This week</button>
+        <button data-p="month">This month</button>
+        <button data-p="all">All time</button>
+      </div>
+      <div class="period-sub" id="periodSub"></div>
+    </div>
+
+    <div class="kpi-row" id="kpiGrid"></div>
+
+    <h2 class="section-title">By category</h2>
+    <div class="cat-grid" id="catGrid"></div>
+
+    <div class="charts-grid">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Sale trend — last 14 days</div></div>
+        <div class="chart-box"><canvas id="trendChart"></canvas></div>
+        <div class="legend-row" id="trendLegend"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Category share</div></div>
+        <div class="chart-box"><canvas id="shareChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Cash vs online</div></div>
+        <div class="chart-box"><canvas id="payChart"></canvas></div>
+      </div>
+    </div>
+
+    <h2 class="section-title">All rows</h2>
+    <div class="table-wrap" id="entryTable"></div>
+
+    <h2 class="section-title" style="margin-top:32px;">Breakdown & calculations</h2>
+    <div class="breakdown" id="breakdownSection"></div>
+
+  </div>
+
+<script>
+// ================= CONFIG =================
+// 1. In your Sheet: Share → General access → "Anyone with the link" → Viewer.
+// 2. Open the tab with your daily data, check the URL for #gid=1234567 ← copy that number into ENTRIES_GID.
+// 3. Your Sheet ID is the long string in the URL between /d/ and /edit.
+const SHEET_ID = '1RjJe77zf6NIcBaqnAJ72iIsz50-r1wlxuqpYuSDVvxA';
+const ENTRIES_GID = '0';
+// Entries sale = Entries (visitor count) × this fee.
+const ENTRY_FEE = 50;
+// ============================================
+//
+// Expected sheet columns (one row per DAY, header names are matched loosely —
+// case/accents/extra spaces don't matter):
+// Date | Total Sale | Indoor Sale | Outdoor Sale | Cafè Cash | Cafè Online |
+// Cafè Sale Total | Expense | Payment Cash | Payment Online | Payment Total |
+// FOC Guests | Entries | Note
+//
+// Everything here is read-only — add and edit rows directly in the Sheet.
+
+const CATS = [
+  { key:'cafe',    label:'Cafe',                   color:'#141412', get: r => r.cafeSaleTotal },
+  { key:'indoor',  label:'Indoor gaming zone',     color:'#5A5A55', get: r => r.indoorSale },
+  { key:'outdoor', label:'Outdoor amusement park', color:'#8B8A82', get: r => r.outdoorSale },
+  { key:'entries', label:'Entries',                color:'#B8B7AE', get: r => r.entriesSale },
+];
+
+let entries = [];
+let period = 'today';
+
+function pad(n){ return String(n).padStart(2,'0'); }
+function dateKey(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function parseDateKey(k){ const [y,m,d]=k.split('-').map(Number); return new Date(y,m-1,d); }
+function fmtDate(k){ if(!k) return '—'; const [y,m,d]=k.split('-'); return `${d}/${m}/${y.slice(2)}`; }
+function fmtMoney(n){ return '₹' + Math.round(n||0).toLocaleString('en-IN'); }
+function startOfWeek(d){ const dt=new Date(d); const day=dt.getDay(); const diff = day===0?-6:1-day; dt.setDate(dt.getDate()+diff); dt.setHours(0,0,0,0); return dt; }
+function inRange(d,s,e){ return d>=s && d<=e; }
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function periodBounds(p){
+  const now = new Date();
+  if(p==='today'){ const s=new Date(now); s.setHours(0,0,0,0); const e=new Date(now); e.setHours(23,59,59,999); return {s,e,label:'today'}; }
+  if(p==='week'){ const s=startOfWeek(now); const e=new Date(s); e.setDate(e.getDate()+6); e.setHours(23,59,59,999); return {s,e,label:'this week'}; }
+  if(p==='month'){ const s=new Date(now.getFullYear(),now.getMonth(),1); const e=new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59,999); return {s,e,label:'this month'}; }
+  return { s:new Date(0), e:new Date(8640000000000000), label:'all time' };
+}
+
+// ---------- Backend: reads the Sheet's published CSV directly ----------
+function sheetConfigured(){ return SHEET_ID && SHEET_ID.indexOf('PASTE_YOUR') === -1; }
+function csvUrl(){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${ENTRIES_GID}`; }
+
+const FIELD_ALIASES = {
+  date: ['date'],
+  totalSale: ['total sale'],
+  indoorSale: ['indoor sale'],
+  outdoorSale: ['outdoor sale'],
+  cafeCash: ['cafe cash'],
+  cafeOnline: ['cafe online'],
+  cafeSaleTotal: ['cafe sale total'],
+  expense: ['expense','expenses'],
+  paymentCash: ['payment cash'],
+  paymentOnline: ['payment online'],
+  paymentTotal: ['payment total'],
+  focGuests: ['foc guests','foc'],
+  entriesCount: ['entries'],
+  note: ['note','notes'],
+};
+function normalizeHeader(h){ return String(h||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase(); }
+function parseSheetDate(raw){
+  if(!raw) return null;
+  const s = String(raw).trim();
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m) return new Date(+m[1], +m[2]-1, +m[3]);
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); // dd/mm/yyyy
+  if(m) return new Date(+m[3], +m[2]-1, +m[1]);
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+}
+function normalizeCsvRow(row, idx){
+  const lower = {};
+  Object.keys(row).forEach(k => lower[normalizeHeader(k)] = row[k]);
+  function get(field){ for(const a of FIELD_ALIASES[field]){ if(lower[a] !== undefined) return lower[a]; } return ''; }
+  const d = parseSheetDate(get('date'));
+  const entriesCount = Number(get('entriesCount'))||0;
+  return {
+    id: String(idx+2),
+    date: d ? dateKey(d) : '',
+    totalSale: Number(get('totalSale'))||0,
+    indoorSale: Number(get('indoorSale'))||0,
+    outdoorSale: Number(get('outdoorSale'))||0,
+    cafeCash: Number(get('cafeCash'))||0,
+    cafeOnline: Number(get('cafeOnline'))||0,
+    cafeSaleTotal: Number(get('cafeSaleTotal'))||0,
+    expense: Number(get('expense'))||0,
+    paymentCash: Number(get('paymentCash'))||0,
+    paymentOnline: Number(get('paymentOnline'))||0,
+    paymentTotal: Number(get('paymentTotal'))||0,
+    focGuests: Number(get('focGuests'))||0,
+    entriesCount,
+    entriesSale: entriesCount * ENTRY_FEE,
+    note: String(get('note')||''),
+  };
+}
+
+async function loadData(){
+  if(!sheetConfigured()){
+    document.getElementById('setupBanner').style.display = 'block';
+    entries = [];
+    renderAll();
+    return;
+  }
+  document.getElementById('setupBanner').style.display = 'none';
+  try{
+    const res = await fetch(csvUrl());
+    if(!res.ok) throw new Error('CSV fetch failed: ' + res.status);
+    const text = await res.text();
+    const parsed = Papa.parse(text, { header:true, skipEmptyLines:true });
+    entries = parsed.data.map(normalizeCsvRow).filter(r => r.date);
+  }catch(err){
+    console.error('Failed to load from Google Sheet', err);
+    document.getElementById('setupBanner').style.display = 'block';
+    document.getElementById('setupBanner').textContent = 'Could not reach the Google Sheet. Check that it\u2019s shared as "Anyone with the link \u2192 Viewer" and that SHEET_ID / ENTRIES_GID are correct.';
+  }
+  renderAll();
+}
+
+// ---------- Period selector ----------
+document.getElementById('periodSeg').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  period = btn.dataset.p;
+  [...e.currentTarget.children].forEach(b=>b.classList.toggle('active', b===btn));
+  renderAll();
+});
+
+// ---------- Charts ----------
+Chart.defaults.color = '#65645D';
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.font.size = 11.5;
+const gridColor = '#EDECE7';
+function baseScales(extra){
+  return Object.assign({
+    x: { grid:{ color:gridColor, drawTicks:false }, border:{display:false} },
+    y: { grid:{ color:gridColor, drawTicks:false }, border:{display:false}, beginAtZero:true }
+  }, extra||{});
+}
+let trendChart, shareChart, payChart;
+function initCharts(){
+  trendChart = new Chart(document.getElementById('trendChart'), {
+    type:'bar',
+    data:{ labels:[], datasets: CATS.map(c => ({ label:c.label, data:[], backgroundColor:c.color, stack:'s', borderRadius:2 })) },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => `${ctx.dataset.label}: ${fmtMoney(ctx.parsed.y)}` } } }, scales: baseScales({ x:{...baseScales().x, stacked:true}, y:{...baseScales().y, stacked:true} }) }
+  });
+  shareChart = new Chart(document.getElementById('shareChart'), {
+    type:'doughnut',
+    data:{ labels:CATS.map(c=>c.label), datasets:[{ data:[0,0,0,0], backgroundColor:CATS.map(c=>c.color), borderColor:'#FFFFFF', borderWidth:3 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'64%', plugins:{ legend:{ position:'bottom', labels:{ boxWidth:8, boxHeight:8, padding:10 } }, tooltip:{ callbacks:{ label: ctx => `${ctx.label}: ${fmtMoney(ctx.parsed)}` } } } }
+  });
+  payChart = new Chart(document.getElementById('payChart'), {
+    type:'doughnut',
+    data:{ labels:['Cash','Online'], datasets:[{ data:[0,0], backgroundColor:['#B8B7AE','#141412'], borderColor:'#FFFFFF', borderWidth:3 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'64%', plugins:{ legend:{ position:'bottom', labels:{ boxWidth:8, boxHeight:8, padding:10 } }, tooltip:{ callbacks:{ label: ctx => `${ctx.label}: ${fmtMoney(ctx.parsed)}` } } } }
+  });
+}
+
+// ---------- Aggregation ----------
+function parseAll(){ return entries.map(e => ({...e, _d: parseDateKey(e.date)})); }
+function sumField(rows, field, s, e){ return rows.filter(r=>inRange(r._d,s,e)).reduce((a,r)=>a+(r[field]||0),0); }
+function sumCat(rows, cat, s, e){ return rows.filter(r=>inRange(r._d,s,e)).reduce((a,r)=>a+cat.get(r),0); }
+
+// ---------- Render ----------
+function renderAll(){
+  const rows = parseAll();
+  const {s,e,label} = periodBounds(period);
+  document.getElementById('periodSub').textContent = entries.length ? `Showing ${label}` : '';
+
+  const totalSale = sumField(rows,'totalSale',s,e);
+  const entriesCount = sumField(rows,'entriesCount',s,e);
+  const foc = sumField(rows,'focGuests',s,e);
+  const expense = sumField(rows,'expense',s,e);
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-cell"><div class="lbl">Total sale</div><div class="num">${fmtMoney(totalSale)}</div></div>
+    <div class="kpi-cell"><div class="lbl">Entries (visitors)</div><div class="num">${entriesCount.toLocaleString()}</div></div>
+    <div class="kpi-cell"><div class="lbl">FOC guests</div><div class="num">${foc.toLocaleString()}</div></div>
+    <div class="kpi-cell"><div class="lbl">Expense</div><div class="num">${fmtMoney(expense)}</div></div>`;
+
+  document.getElementById('catGrid').innerHTML = CATS.map(cat => {
+    const catSale = sumCat(rows,cat,s,e);
+    let splitHtml = '';
+    let footHtml = '';
+    if(cat.key === 'cafe'){
+      const cash = sumField(rows,'cafeCash',s,e);
+      const online = sumField(rows,'cafeOnline',s,e);
+      splitHtml = `<div class="split"><span>Cash <b>${fmtMoney(cash)}</b></span><span>Online <b>${fmtMoney(online)}</b></span></div>`;
+    }
+    if(cat.key === 'entries'){
+      footHtml = `<div class="foot">₹${ENTRY_FEE} × ${entriesCount.toLocaleString()} visitors</div>`;
+    }
+    return `<div class="cat-card">
+      <div class="top"><span class="dot" style="background:${cat.color}"></span><span class="name">${cat.label}</span></div>
+      <div class="sale">${fmtMoney(catSale)}</div>
+      ${splitHtml}
+      ${footHtml}
+    </div>`;
+  }).join('');
+
+  const buckets = [];
+  const now = new Date();
+  for(let i=13;i>=0;i--){
+    const d=new Date(now); d.setDate(d.getDate()-i);
+    const bs=new Date(d); bs.setHours(0,0,0,0);
+    const be=new Date(d); be.setHours(23,59,59,999);
+    buckets.push({ label:d.toLocaleDateString(undefined,{month:'short',day:'numeric'}), s:bs, e:be });
+  }
+  trendChart.data.labels = buckets.map(b=>b.label);
+  CATS.forEach((cat,i)=> trendChart.data.datasets[i].data = buckets.map(b => sumCat(rows,cat,b.s,b.e)));
+  trendChart.update();
+  document.getElementById('trendLegend').innerHTML = CATS.map(c => `<span><i style="background:${c.color}"></i>${c.label}</span>`).join('');
+
+  shareChart.data.datasets[0].data = CATS.map(cat => sumCat(rows,cat,s,e));
+  shareChart.update();
+
+  payChart.data.datasets[0].data = [sumField(rows,'paymentCash',s,e), sumField(rows,'paymentOnline',s,e)];
+  payChart.update();
+
+  const exp = sumField(rows,'expense',s,e);
+  const cafeCash = sumField(rows,'cafeCash',s,e);
+  const cafeOnline = sumField(rows,'cafeOnline',s,e);
+  const cafeTotal = sumCat(rows, CATS[0], s, e);
+  const indoorSale = sumCat(rows, CATS[1], s, e);
+  const outdoorSale = sumCat(rows, CATS[2], s, e);
+  const entriesSale = sumCat(rows, CATS[3], s, e);
+  const categorySum = cafeTotal + indoorSale + outdoorSale + entriesSale;
+  const payCash = sumField(rows,'paymentCash',s,e);
+  const payOnline = sumField(rows,'paymentOnline',s,e);
+  const payTotal = payCash + payOnline;
+  const netProfit = totalSale - exp;
+  const mismatch = Math.round(categorySum) !== Math.round(totalSale);
+
+  document.getElementById('breakdownSection').innerHTML = `
+    <div class="bd-row">
+      <div><div class="bd-label"><b>Cafe sale</b></div><div class="bd-formula">Cash ${fmtMoney(cafeCash)} + Online ${fmtMoney(cafeOnline)}</div></div>
+      <div class="bd-value">${fmtMoney(cafeTotal)}</div>
+    </div>
+    <div class="bd-row">
+      <div><div class="bd-label"><b>Indoor gaming zone sale</b></div><div class="bd-formula">From Indoor Sale column</div></div>
+      <div class="bd-value">${fmtMoney(indoorSale)}</div>
+    </div>
+    <div class="bd-row">
+      <div><div class="bd-label"><b>Outdoor amusement park sale</b></div><div class="bd-formula">From Outdoor Sale column</div></div>
+      <div class="bd-value">${fmtMoney(outdoorSale)}</div>
+    </div>
+    <div class="bd-row">
+      <div><div class="bd-label"><b>Entries sale</b></div><div class="bd-formula">${entriesCount.toLocaleString()} visitors × ₹${ENTRY_FEE}</div></div>
+      <div class="bd-value">${fmtMoney(entriesSale)}</div>
+    </div>
+    <div class="bd-row total">
+      <div><div class="bd-label"><b>Total sale (sum of categories)</b></div><div class="bd-formula">Cafe + Indoor + Outdoor + Entries</div></div>
+      <div class="bd-value">${fmtMoney(categorySum)}</div>
+    </div>
+    <div class="bd-row">
+      <div><div class="bd-label"><b>FOC guests</b></div><div class="bd-formula">Complimentary — not counted in sale</div></div>
+      <div class="bd-value">${foc.toLocaleString()}</div>
+    </div>
+    <div class="bd-row">
+      <div><div class="bd-label"><b>Payment total</b></div><div class="bd-formula">Cash ${fmtMoney(payCash)} + Online ${fmtMoney(payOnline)}</div></div>
+      <div class="bd-value">${fmtMoney(payTotal)}</div>
+    </div>
+    <div class="bd-row">
+      <div><div class="bd-label"><b>Expense</b></div><div class="bd-formula">From Expense column</div></div>
+      <div class="bd-value">${fmtMoney(exp)}</div>
+    </div>
+    <div class="bd-row total">
+      <div><div class="bd-label"><b>Net profit</b></div><div class="bd-formula">Total sale ${fmtMoney(totalSale)} − Expense ${fmtMoney(exp)}</div></div>
+      <div class="bd-value">${fmtMoney(netProfit)}</div>
+    </div>
+    ${mismatch ? `<div class="bd-note">Note: the sum of Cafe + Indoor + Outdoor + Entries (${fmtMoney(categorySum)}) doesn\u2019t match the Sheet\u2019s Total Sale column (${fmtMoney(totalSale)}) for this period — worth double-checking those columns.</div>` : ''}
+  `;
+
+  const tableRows = [...entries].filter(r=>inRange(parseDateKey(r.date),s,e)).sort((a,b)=> b.date.localeCompare(a.date) || Number(b.id)-Number(a.id)).slice(0,150);
+  document.getElementById('entryTable').innerHTML = tableHtml(tableRows);
+}
+
+function tableHtml(rows){
+  if(rows.length===0) return '<div class="empty">No rows for this period yet.</div>';
+  const body = rows.map(r => {
+    const net = r.totalSale - r.expense;
+    return `<tr>
+      <td>${fmtDate(r.date)}</td>
+      <td>${fmtMoney(r.totalSale)}</td>
+      <td>${fmtMoney(r.indoorSale)}</td>
+      <td>${fmtMoney(r.outdoorSale)}</td>
+      <td class="muted-cell">${fmtMoney(r.cafeCash)}</td>
+      <td class="muted-cell">${fmtMoney(r.cafeOnline)}</td>
+      <td>${fmtMoney(r.cafeSaleTotal)}</td>
+      <td class="muted-cell">${fmtMoney(r.paymentCash)}</td>
+      <td class="muted-cell">${fmtMoney(r.paymentOnline)}</td>
+      <td>${fmtMoney(r.paymentTotal)}</td>
+      <td>${r.focGuests||0}</td>
+      <td>${r.entriesCount||0}</td>
+      <td>${fmtMoney(r.entriesSale)}</td>
+      <td>${fmtMoney(r.expense)}</td>
+      <td>${fmtMoney(net)}</td>
+      <td class="muted-cell">${escapeHtml(r.note)}</td>
+    </tr>`;
+  }).join('');
+  return `<table><thead><tr><th>Date</th><th>Total Sale</th><th>Indoor</th><th>Outdoor</th><th>Cafe Cash</th><th>Cafe Online</th><th>Cafe Total</th><th>Pay Cash</th><th>Pay Online</th><th>Pay Total</th><th>FOC</th><th>Entries</th><th>Entries Sale</th><th>Expense</th><th>Net</th><th>Note</th></tr></thead><tbody>${body}</tbody></table>`;
+}
+
+if(typeof Chart === 'undefined' || typeof Papa === 'undefined'){
+  document.body.innerHTML = '<div style="max-width:520px; margin:80px auto; padding:24px; font-family:sans-serif; text-align:center;"><h2>Couldn\u2019t load required scripts</h2><p style="color:#666;">Chart.js or PapaParse failed to load from the CDN. Check your internet connection, or that your network/browser isn\u2019t blocking cdn.jsdelivr.net, then refresh the page.</p></div>';
+} else {
+  initCharts();
+  loadData();
+}
+</script>
+</body>
+</html>
