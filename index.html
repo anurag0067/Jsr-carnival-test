@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <style>
   :root{
     --bg:#F4F4F1; --surface:#FFFFFF; --surface-muted:#FAFAF9;
@@ -17,82 +16,101 @@
   *{box-sizing:border-box;}
   body{margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',-apple-system,sans-serif; padding:0 0 70px; font-variant-numeric:tabular-nums;}
   h1,.num{font-family:'Fraunces',serif;}
-  .wrap{max-width:1180px; margin:0 auto; padding:0 20px;}
+  .wrap{max-width:1200px; margin:0 auto; padding:0 20px;}
 
-  /* Header */
   .topbar{border-bottom:1px solid var(--line-strong); background:var(--surface);}
-  .topbar-inner{max-width:1180px; margin:0 auto; padding:22px 20px; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;}
+  .topbar-inner{max-width:1200px; margin:0 auto; padding:22px 20px; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;}
   .brand{display:flex; align-items:center; gap:13px;}
   .brand-badge{width:42px; height:42px; background:var(--ink); color:#fff; border-radius:9px; display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-weight:600; font-size:16px; flex-shrink:0;}
   .brand h1{font-size:19px; font-weight:600; margin:0; line-height:1.2;}
   .brand p{color:var(--ink-muted); font-size:12.5px; margin:3px 0 0;}
+  .btn{border:none; border-radius:9px; padding:10px 16px; font-size:13.5px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;}
+  .btn-dark{background:var(--ink); color:#fff;}
+
+  .login-gate{position:fixed; inset:0; background:var(--bg); z-index:100; display:flex; align-items:center; justify-content:center; padding:20px;}
+  .login-box{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:32px; width:100%; max-width:360px;}
+  .login-box h2{font-family:'Fraunces',serif; font-size:20px; font-weight:600; margin:0 0 6px;}
+  .login-box p{color:var(--ink-muted); font-size:13px; margin:0 0 22px;}
+  .login-box .field{margin-bottom:14px;}
+  .login-box label{display:block; font-size:12px; color:var(--ink-muted); margin-bottom:6px;}
+  .login-box input{width:100%; border:1px solid var(--line); border-radius:9px; padding:11px 12px; font-size:14px; font-family:'Inter',sans-serif; color:var(--ink); background:var(--surface-muted);}
+  .login-box .btn{width:100%; margin-top:8px; padding:12px;}
+  #dashboardRoot{display:none;}
 
   .banner{background:var(--ink); color:#fff; border-radius:10px; padding:12px 16px; font-size:13px; margin:20px 0; display:none;}
   .banner code{background:rgba(255,255,255,0.15); padding:2px 6px; border-radius:4px;}
 
-  /* Period control */
   .period-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:24px 0 22px; flex-wrap:wrap;}
   .seg{display:flex; gap:2px; background:var(--surface-muted); border:1px solid var(--line); border-radius:9px; padding:3px;}
   .seg button{border:none; background:transparent; color:var(--ink-muted); font-size:13px; font-weight:600; padding:8px 15px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif;}
   .seg button.active{background:var(--ink); color:#fff;}
   .period-sub{font-size:12.5px; color:var(--ink-faint);}
 
-  /* KPI row */
-  .kpi-row{display:grid; grid-template-columns:repeat(4, 1fr); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:32px; background:var(--surface);}
-  .kpi-cell{padding:20px 22px; border-right:1px solid var(--line);}
-  .kpi-cell:last-child{border-right:none;}
-  .kpi-cell .lbl{font-size:12.5px; color:var(--ink-muted); margin-bottom:8px;}
-  .kpi-cell .num{font-size:26px; font-weight:600;}
+  .mis-row{display:grid; grid-template-columns:repeat(3, 1fr); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:32px; background:var(--surface);}
+  .mis-cell{padding:18px 20px; border-right:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .mis-cell:nth-child(3n){border-right:none;}
+  .mis-row .mis-cell:nth-last-child(-n+3){border-bottom:none;}
+  .mis-cell .lbl{font-size:12px; color:var(--ink-muted); margin-bottom:7px;}
+  .mis-cell .num{font-size:22px; font-weight:600;}
 
   .section-title{font-family:'Fraunces',serif; font-size:17px; font-weight:600; margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
 
-  /* Category cards */
-  .cat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:32px;}
-  .cat-card{background:var(--surface); padding:18px 20px;}
+  .cat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:14px; margin-bottom:32px;}
+  .cat-card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 20px;}
   .cat-card .top{display:flex; align-items:center; gap:8px; margin-bottom:12px;}
   .cat-card .dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
   .cat-card .name{font-size:13px; font-weight:600; color:var(--ink-muted);}
-  .cat-card .sale{font-size:23px; font-weight:600; font-family:'Fraunces',serif; margin-bottom:12px;}
-  .cat-card .split{display:flex; gap:16px; font-size:12px; color:var(--ink-muted); border-top:1px solid var(--bg); padding-top:11px; flex-wrap:wrap;}
-  .cat-card .split b{color:var(--ink); font-weight:600;}
-  .cat-card .foot{font-size:11.5px; color:var(--ink-faint); margin-top:8px;}
+  .cat-card .sale{font-size:22px; font-weight:600; font-family:'Fraunces',serif; margin-bottom:12px;}
+  .cat-card .rows{font-size:12px; color:var(--ink-muted); border-top:1px solid var(--bg); padding-top:10px;}
+  .cat-card .rows div{display:flex; justify-content:space-between; padding:3px 0;}
+  .cat-card .rows b{color:var(--ink); font-weight:600;}
 
-  /* Charts */
   .charts-grid{display:grid; grid-template-columns:1.6fr 1fr 1fr; gap:16px; margin-bottom:32px;}
   .card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px;}
   .card-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
   .card-title{font-size:13.5px; font-weight:600; color:var(--ink);}
   .chart-box{position:relative; height:225px;}
-  .legend-row{display:flex; gap:14px; flex-wrap:wrap; margin-top:12px; font-size:11.5px; color:var(--ink-muted);}
+  .legend-row{display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; font-size:11px; color:var(--ink-muted);}
   .legend-row span{display:flex; align-items:center; gap:5px;}
   .legend-row i{width:8px; height:8px; border-radius:2px; display:inline-block;}
 
-  /* Breakdown */
-  .breakdown{border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--surface); margin-bottom:20px;}
-  .bd-row{display:flex; justify-content:space-between; align-items:baseline; gap:16px; padding:13px 20px; border-bottom:1px solid var(--bg);}
-  .bd-row:last-child{border-bottom:none;}
-  .bd-row.total{background:var(--surface-muted); font-weight:600;}
-  .bd-label{font-size:13px; color:var(--ink-muted);}
-  .bd-label b{color:var(--ink); font-weight:600;}
-  .bd-formula{font-size:11.5px; color:var(--ink-faint); margin-top:2px;}
-  .bd-value{font-size:15px; font-weight:600; white-space:nowrap; flex-shrink:0;}
-  .bd-note{font-size:11.5px; color:var(--ink-faint); padding:10px 20px; border-top:1px dashed var(--line);}
-
-  /* Table */
-  .table-wrap{max-height:460px; overflow:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface);}
-  table{width:100%; border-collapse:collapse; font-size:12.5px;}
-  th{text-align:right; font-size:11px; color:var(--ink-muted); font-weight:600; padding:11px 12px; border-bottom:1px solid var(--line-strong); white-space:nowrap; position:sticky; top:0; background:var(--surface);}
+  .table-wrap{max-height:420px; overflow:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface); margin-bottom:32px;}
+  table{width:100%; border-collapse:collapse; font-size:12px;}
+  th{text-align:right; font-size:10.5px; color:var(--ink-muted); font-weight:600; padding:10px 11px; border-bottom:1px solid var(--line-strong); white-space:nowrap; position:sticky; top:0; background:var(--surface);}
   th:first-child, th:last-child{text-align:left;}
-  td{padding:10px 12px; border-bottom:1px solid var(--bg); white-space:nowrap; text-align:right;}
+  td{padding:9px 11px; border-bottom:1px solid var(--bg); white-space:nowrap; text-align:right;}
   td:first-child, td:last-child{text-align:left;}
   tr:hover td{background:var(--surface-muted);}
   .empty{color:var(--ink-faint); font-size:13px; padding:28px 0; text-align:center;}
   .muted-cell{color:var(--ink-faint);}
 
-  @media (max-width:960px){ .charts-grid{grid-template-columns:1fr;} .kpi-row{grid-template-columns:repeat(2,1fr);} .kpi-cell{border-right:1px solid var(--line);} .kpi-cell:nth-child(2n){border-right:none;} .bd-row{flex-direction:column; align-items:flex-start; gap:4px;} }
+  .add-form{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:22px; margin-bottom:24px;}
+  .add-form .hint{font-size:12px; color:var(--ink-faint); margin:-4px 0 18px;}
+  .fieldset-title{font-size:12.5px; font-weight:700; color:var(--ink); margin:20px 0 10px;}
+  .fieldset-title:first-of-type{margin-top:0;}
+  .form-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:6px;}
+  .field label{display:block; font-size:11.5px; color:var(--ink-muted); margin-bottom:5px;}
+  .field input{width:100%; border:1px solid var(--line); border-radius:8px; padding:9px 10px; font-size:13px; font-family:'Inter',sans-serif; color:var(--ink); background:var(--surface-muted);}
+  .form-msg{font-size:12.5px; margin-top:12px; display:none;}
+  .form-msg.err{color:#8a1f1f;}
+  .form-msg.ok{color:#1f6b3a;}
+
+  @media (max-width:960px){ .charts-grid{grid-template-columns:1fr;} .mis-row{grid-template-columns:1fr 1fr;} .mis-cell:nth-child(3n){border-right:1px solid var(--line);} .mis-cell:nth-child(2n){border-right:none;} .form-grid{grid-template-columns:1fr 1fr;} }
 </style>
 </head>
 <body>
+
+  <div class="login-gate" id="loginGate">
+    <div class="login-box">
+      <h2>Carnival of Dreams</h2>
+      <p>Sign in to view the dashboard.</p>
+      <div class="field"><label>Name</label><input type="text" id="loginName" autocomplete="username"></div>
+      <div class="field"><label>Password</label><input type="password" id="loginPass" autocomplete="current-password"></div>
+      <button class="btn btn-dark" id="loginBtn">Log in</button>
+    </div>
+  </div>
+
+  <div id="dashboardRoot">
 
   <div class="topbar">
     <div class="topbar-inner">
@@ -100,17 +118,73 @@
         <div class="brand-badge">CD</div>
         <div>
           <h1>Carnival of Dreams</h1>
-          <p>Sales dashboard — cafe, indoor gaming zone, outdoor amusement park, entries</p>
+          <p>Indoor · outdoor · entry · cafe</p>
         </div>
       </div>
+      <button class="btn btn-dark" id="toggleFormBtn" style="display:none;">+ Add entry</button>
     </div>
   </div>
 
   <div class="wrap">
 
     <div class="banner" id="setupBanner">
-      Not connected yet. Set your Sheet to "Anyone with the link → Viewer", then paste your Sheet ID and tab gid into
-      <code>SHEET_ID</code> and <code>ENTRIES_GID</code> near the top of this file's &lt;script&gt; section.
+      Not connected yet. Paste your data source URL into <code>DATA_URL</code> near the top of this file's &lt;script&gt; section.
+    </div>
+
+    <div class="add-form" id="addForm" style="display:none;">
+      <h2 class="section-title" style="border-bottom:none; margin-bottom:6px;">Add / update a day's entry</h2>
+      <div class="hint">Adding for a date that already has a row will update it, not duplicate it. Totals are calculated automatically.</div>
+
+      <div class="field" style="max-width:220px; margin-bottom:14px;"><label>Date</label><input type="date" id="fDate"></div>
+
+      <div class="fieldset-title">Indoor</div>
+      <div class="form-grid">
+        <div class="field"><label>Sale (₹)</label><input type="number" id="fIndoorSale" min="0"></div>
+        <div class="field"><label>Dashboard Sale (₹)</label><input type="number" id="fIndoorDashboardSale" min="0"></div>
+        <div class="field"><label>Online (₹)</label><input type="number" id="fIndoorOnline" min="0"></div>
+        <div class="field"><label>Cash (₹)</label><input type="number" id="fIndoorCash" min="0"></div>
+        <div class="field"><label>FOC (₹)</label><input type="number" id="fIndoorFoc" min="0"></div>
+        <div class="field"><label>Discount (₹)</label><input type="number" id="fIndoorDiscount" min="0"></div>
+        <div class="field"><label>Expense (₹)</label><input type="number" id="fIndoorExpense" min="0"></div>
+      </div>
+
+      <div class="fieldset-title">Outdoor</div>
+      <div class="form-grid">
+        <div class="field"><label>Sale (₹)</label><input type="number" id="fOutdoorSale" min="0"></div>
+        <div class="field"><label>Cards Sold</label><input type="number" id="fCardsSold" min="0"></div>
+        <div class="field"><label>Coupon Sold</label><input type="number" id="fCouponSold" min="0"></div>
+      </div>
+
+      <div class="fieldset-title">Entry</div>
+      <div class="form-grid">
+        <div class="field"><label>Cash (₹)</label><input type="number" id="fEntryCash" min="0"></div>
+        <div class="field"><label>Online (₹)</label><input type="number" id="fEntryOnline" min="0"></div>
+        <div class="field"><label>FOC (₹)</label><input type="number" id="fEntryFoc" min="0"></div>
+        <div class="field"><label>Discount (₹)</label><input type="number" id="fEntryDiscount" min="0"></div>
+      </div>
+
+      <div class="fieldset-title">Cafe</div>
+      <div class="form-grid">
+        <div class="field"><label>Cash (₹)</label><input type="number" id="fCafeCash" min="0"></div>
+        <div class="field"><label>Online (₹)</label><input type="number" id="fCafeOnline" min="0"></div>
+        <div class="field"><label>FOC (₹)</label><input type="number" id="fCafeFoc" min="0"></div>
+        <div class="field"><label>Discount (₹)</label><input type="number" id="fCafeDiscount" min="0"></div>
+      </div>
+
+      <button class="btn btn-dark" id="submitEntryBtn" style="margin-top:16px;">Save entry</button>
+      <div class="form-msg" id="formMsg"></div>
+    </div>
+
+    <div class="add-form" id="focForm" style="display:none;">
+      <h2 class="section-title" style="border-bottom:none; margin-bottom:6px;">Add a Cafe FOC guest</h2>
+      <div class="hint">Each complimentary Cafe guest is logged individually here — this feeds the named FOC list and its total below.</div>
+      <div class="form-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="field"><label>Date</label><input type="date" id="focDate"></div>
+        <div class="field"><label>Name / Ref.</label><input type="text" id="focName" placeholder="e.g. Gunakesh Sir"></div>
+        <div class="field"><label>Amount (₹)</label><input type="number" id="focAmount" min="0"></div>
+      </div>
+      <button class="btn btn-dark" id="submitFocBtn" style="margin-top:16px;">Save FOC entry</button>
+      <div class="form-msg" id="focFormMsg"></div>
     </div>
 
     <div class="period-row">
@@ -123,9 +197,10 @@
       <div class="period-sub" id="periodSub"></div>
     </div>
 
-    <div class="kpi-row" id="kpiGrid"></div>
+    <h2 class="section-title">Day total summary</h2>
+    <div class="mis-row" id="misGrid"></div>
 
-    <h2 class="section-title">By category</h2>
+    <h2 class="section-title" style="margin-top:32px;">By category</h2>
     <div class="cat-grid" id="catGrid"></div>
 
     <div class="charts-grid">
@@ -144,42 +219,40 @@
       </div>
     </div>
 
+    <h2 class="section-title">Cafe FOC — named log</h2>
+    <div class="table-wrap" id="focTable"></div>
+
     <h2 class="section-title">All rows</h2>
     <div class="table-wrap" id="entryTable"></div>
 
-    <h2 class="section-title" style="margin-top:32px;">Breakdown & calculations</h2>
-    <div class="breakdown" id="breakdownSection"></div>
+  </div>
 
   </div>
 
 <script>
 // ================= CONFIG =================
-// 1. In your Sheet: Share → General access → "Anyone with the link" → Viewer.
-// 2. Open the tab with your daily data, check the URL for #gid=1234567 ← copy that number into ENTRIES_GID.
-// 3. Your Sheet ID is the long string in the URL between /d/ and /edit.
-const SHEET_ID = '1RjJe77zf6NIcBaqnAJ72iIsz50-r1wlxuqpYuSDVvxA';
-const ENTRIES_GID = '0';
-// Entries sale = Entries (visitor count) × this fee.
-const ENTRY_FEE = 50;
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbzyJhZmgE2NNNSgkcNVUQPB_y7QXnpsIk9Ay-Nl0DEKKSNj41N2sDzjYpBLYwp0-YSFlQ/exec';
 // ============================================
 //
-// Expected sheet columns (one row per DAY, header names are matched loosely —
-// case/accents/extra spaces don't matter):
-// Date | Total Sale | Indoor Sale | Outdoor Sale | Cafè Cash | Cafè Online |
-// Cafè Sale Total | Expense | Payment Cash | Payment Online | Payment Total |
-// FOC Guests | Entries | Note
+// Raw inputs per day: Indoor (Sale, Dashboard Sale, Online, Cash, FOC,
+// Discount, Expense), Outdoor (Sale, Cards Sold, Coupon Sold), Entry (Cash,
+// Online, FOC, Discount), Cafe (Cash, Online, FOC, Discount). Plus a
+// separate named log of Cafe FOC guests (Date, Name, Amount).
 //
-// Everything here is read-only — add and edit rows directly in the Sheet.
+// Totals (Total Indoor Sale, Total Entry, Total Cafe Sale, Total Online,
+// Total Cash, Total Payment, FOC Cafe Total) are calculated automatically.
 
 const CATS = [
-  { key:'cafe',    label:'Cafe',                   color:'#141412', get: r => r.cafeSaleTotal },
-  { key:'indoor',  label:'Indoor gaming zone',     color:'#5A5A55', get: r => r.indoorSale },
-  { key:'outdoor', label:'Outdoor amusement park', color:'#8B8A82', get: r => r.outdoorSale },
-  { key:'entries', label:'Entries',                color:'#B8B7AE', get: r => r.entriesSale },
+  { key:'indoor', label:'Indoor',  color:'#141412', sale: r => r.indoorOnline+r.indoorCash, online: r => r.indoorOnline, cash: r => r.indoorCash },
+  { key:'entry',  label:'Entry',   color:'#5A5A55', sale: r => r.entryCash+r.entryOnline,    online: r => r.entryOnline,  cash: r => r.entryCash },
+  { key:'cafe',   label:'Cafe',    color:'#8B8A82', sale: r => r.cafeCash+r.cafeOnline,      online: r => r.cafeOnline,   cash: r => r.cafeCash },
+  { key:'outdoor',label:'Outdoor', color:'#B8B7AE', sale: r => r.outdoorSale,                online: () => 0,             cash: () => 0 },
 ];
 
 let entries = [];
+let focEntries = [];
 let period = 'today';
+let adminPasswordHash = null;
 
 function pad(n){ return String(n).padStart(2,'0'); }
 function dateKey(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
@@ -198,83 +271,135 @@ function periodBounds(p){
   return { s:new Date(0), e:new Date(8640000000000000), label:'all time' };
 }
 
-// ---------- Backend: reads the Sheet's published CSV directly ----------
-function sheetConfigured(){ return SHEET_ID && SHEET_ID.indexOf('PASTE_YOUR') === -1; }
-function csvUrl(){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${ENTRIES_GID}`; }
-
-const FIELD_ALIASES = {
-  date: ['date'],
-  totalSale: ['total sale'],
-  indoorSale: ['indoor sale'],
-  outdoorSale: ['outdoor sale'],
-  cafeCash: ['cafe cash'],
-  cafeOnline: ['cafe online'],
-  cafeSaleTotal: ['cafe sale total'],
-  expense: ['expense','expenses'],
-  paymentCash: ['payment cash'],
-  paymentOnline: ['payment online'],
-  paymentTotal: ['payment total'],
-  focGuests: ['foc guests','foc'],
-  entriesCount: ['entries'],
-  note: ['note','notes'],
-};
-function normalizeHeader(h){ return String(h||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase(); }
-function parseSheetDate(raw){
-  if(!raw) return null;
-  const s = String(raw).trim();
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if(m) return new Date(+m[1], +m[2]-1, +m[3]);
-  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); // dd/mm/yyyy
-  if(m) return new Date(+m[3], +m[2]-1, +m[1]);
-  const d = new Date(s);
-  return isNaN(d) ? null : d;
-}
-function normalizeCsvRow(row, idx){
-  const lower = {};
-  Object.keys(row).forEach(k => lower[normalizeHeader(k)] = row[k]);
-  function get(field){ for(const a of FIELD_ALIASES[field]){ if(lower[a] !== undefined) return lower[a]; } return ''; }
-  const d = parseSheetDate(get('date'));
-  const entriesCount = Number(get('entriesCount'))||0;
-  return {
-    id: String(idx+2),
-    date: d ? dateKey(d) : '',
-    totalSale: Number(get('totalSale'))||0,
-    indoorSale: Number(get('indoorSale'))||0,
-    outdoorSale: Number(get('outdoorSale'))||0,
-    cafeCash: Number(get('cafeCash'))||0,
-    cafeOnline: Number(get('cafeOnline'))||0,
-    cafeSaleTotal: Number(get('cafeSaleTotal'))||0,
-    expense: Number(get('expense'))||0,
-    paymentCash: Number(get('paymentCash'))||0,
-    paymentOnline: Number(get('paymentOnline'))||0,
-    paymentTotal: Number(get('paymentTotal'))||0,
-    focGuests: Number(get('focGuests'))||0,
-    entriesCount,
-    entriesSale: entriesCount * ENTRY_FEE,
-    note: String(get('note')||''),
-  };
-}
+// ---------- Backend ----------
+function sheetConfigured(){ return DATA_URL && DATA_URL.indexOf('PASTE_YOUR') === -1; }
 
 async function loadData(){
   if(!sheetConfigured()){
     document.getElementById('setupBanner').style.display = 'block';
-    entries = [];
+    entries = []; focEntries = [];
     renderAll();
     return;
   }
   document.getElementById('setupBanner').style.display = 'none';
   try{
-    const res = await fetch(csvUrl());
-    if(!res.ok) throw new Error('CSV fetch failed: ' + res.status);
-    const text = await res.text();
-    const parsed = Papa.parse(text, { header:true, skipEmptyLines:true });
-    entries = parsed.data.map(normalizeCsvRow).filter(r => r.date);
+    const [res1, res2] = await Promise.all([
+      fetch(DATA_URL + '?action=list'),
+      fetch(DATA_URL + '?action=focList'),
+    ]);
+    if(!res1.ok) throw new Error('fetch failed: ' + res1.status);
+    entries = await res1.json();
+    focEntries = res2.ok ? await res2.json() : [];
   }catch(err){
-    console.error('Failed to load from Google Sheet', err);
+    console.error('Failed to load data', err);
     document.getElementById('setupBanner').style.display = 'block';
-    document.getElementById('setupBanner').textContent = 'Could not reach the Google Sheet. Check that it\u2019s shared as "Anyone with the link \u2192 Viewer" and that SHEET_ID / ENTRIES_GID are correct.';
+    document.getElementById('setupBanner').textContent = 'Could not load data. Check that DATA_URL is set correctly and reachable.';
   }
   renderAll();
+}
+
+// ---------- Login gate ----------
+const ADMIN_NAME = 'carnival';
+const ADMIN_PASSWORD_HASH = 'e385ff7a062b6cfb48740016610b22d335e9dae2d3268fbfb4741a3a9346d635';
+
+async function sha256Hex(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const name = document.getElementById('loginName').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if(!name || !pass) return;
+  const passHash = await sha256Hex(pass);
+  const isAdmin = name.toLowerCase() === ADMIN_NAME && passHash === ADMIN_PASSWORD_HASH;
+  if(isAdmin){
+    adminPasswordHash = passHash;
+    document.getElementById('toggleFormBtn').style.display = 'inline-block';
+  }
+  document.getElementById('loginGate').style.display = 'none';
+  document.getElementById('dashboardRoot').style.display = 'block';
+});
+
+// ---------- Add / update daily entry ----------
+const addForm = document.getElementById('addForm');
+document.getElementById('toggleFormBtn').addEventListener('click', () => {
+  const showing = addForm.style.display !== 'none';
+  addForm.style.display = showing ? 'none' : 'block';
+  document.getElementById('focForm').style.display = showing ? 'none' : 'block';
+  if(!showing){
+    if(!document.getElementById('fDate').value) document.getElementById('fDate').value = dateKey(new Date());
+    if(!document.getElementById('focDate').value) document.getElementById('focDate').value = dateKey(new Date());
+  }
+});
+document.getElementById('submitEntryBtn').addEventListener('click', async () => {
+  const date = document.getElementById('fDate').value;
+  if(!date){ showMsg('formMsg','Pick a date first.', 'err'); return; }
+  if(!adminPasswordHash){ showMsg('formMsg','Admin session not active — please log in again.', 'err'); return; }
+  if(!sheetConfigured()){ showMsg('formMsg','Data endpoint not set up yet.', 'err'); return; }
+
+  const btn = document.getElementById('submitEntryBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try{
+    const val = id => document.getElementById(id).value;
+    const payload = {
+      action:'addEntry', pinHash: adminPasswordHash, date,
+      indoorSale: val('fIndoorSale'), indoorDashboardSale: val('fIndoorDashboardSale'), indoorOnline: val('fIndoorOnline'), indoorCash: val('fIndoorCash'), indoorFoc: val('fIndoorFoc'), indoorDiscount: val('fIndoorDiscount'), indoorExpense: val('fIndoorExpense'),
+      outdoorSale: val('fOutdoorSale'), cardsSold: val('fCardsSold'), couponSold: val('fCouponSold'),
+      entryCash: val('fEntryCash'), entryOnline: val('fEntryOnline'), entryFoc: val('fEntryFoc'), entryDiscount: val('fEntryDiscount'),
+      cafeCash: val('fCafeCash'), cafeOnline: val('fCafeOnline'), cafeFoc: val('fCafeFoc'), cafeDiscount: val('fCafeDiscount'),
+    };
+    const res = await fetch(DATA_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+    const result = await res.json();
+    if(result.ok){
+      showMsg('formMsg', result.updated ? 'Updated that day\u2019s row.' : 'Added as a new row.', 'ok');
+      setTimeout(loadData, 1500);
+    } else if(result.error === 'unauthorized'){
+      showMsg('formMsg','Wrong session — please log in again.', 'err');
+    } else {
+      showMsg('formMsg','Something went wrong: ' + (result.error || 'unknown error'), 'err');
+    }
+  } catch(err){
+    console.error(err);
+    showMsg('formMsg','Could not reach the backend.', 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save entry';
+  }
+});
+
+// ---------- Add Cafe FOC guest ----------
+document.getElementById('submitFocBtn').addEventListener('click', async () => {
+  const date = document.getElementById('focDate').value;
+  const name = document.getElementById('focName').value.trim();
+  const amount = document.getElementById('focAmount').value;
+  if(!date || !name){ showMsg('focFormMsg','Date and name are required.', 'err'); return; }
+  if(!adminPasswordHash){ showMsg('focFormMsg','Admin session not active — please log in again.', 'err'); return; }
+
+  const btn = document.getElementById('submitFocBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try{
+    const payload = { action:'addFoc', pinHash: adminPasswordHash, date, name, amount };
+    const res = await fetch(DATA_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+    const result = await res.json();
+    if(result.ok){
+      showMsg('focFormMsg','Added.', 'ok');
+      document.getElementById('focName').value = '';
+      document.getElementById('focAmount').value = '';
+      setTimeout(loadData, 1500);
+    } else if(result.error === 'unauthorized'){
+      showMsg('focFormMsg','Wrong session — please log in again.', 'err');
+    } else {
+      showMsg('focFormMsg','Something went wrong: ' + (result.error || 'unknown error'), 'err');
+    }
+  } catch(err){
+    console.error(err);
+    showMsg('focFormMsg','Could not reach the backend.', 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save FOC entry';
+  }
+});
+function showMsg(elId, text, cls){
+  const msg = document.getElementById(elId);
+  msg.textContent = text; msg.className = 'form-msg ' + cls; msg.style.display = 'block';
 }
 
 // ---------- Period selector ----------
@@ -305,8 +430,8 @@ function initCharts(){
   });
   shareChart = new Chart(document.getElementById('shareChart'), {
     type:'doughnut',
-    data:{ labels:CATS.map(c=>c.label), datasets:[{ data:[0,0,0,0], backgroundColor:CATS.map(c=>c.color), borderColor:'#FFFFFF', borderWidth:3 }] },
-    options:{ responsive:true, maintainAspectRatio:false, cutout:'64%', plugins:{ legend:{ position:'bottom', labels:{ boxWidth:8, boxHeight:8, padding:10 } }, tooltip:{ callbacks:{ label: ctx => `${ctx.label}: ${fmtMoney(ctx.parsed)}` } } } }
+    data:{ labels:CATS.map(c=>c.label), datasets:[{ data:CATS.map(()=>0), backgroundColor:CATS.map(c=>c.color), borderColor:'#FFFFFF', borderWidth:3 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'64%', plugins:{ legend:{ position:'bottom', labels:{ boxWidth:8, boxHeight:8, padding:8, font:{size:10.5} } }, tooltip:{ callbacks:{ label: ctx => `${ctx.label}: ${fmtMoney(ctx.parsed)}` } } } }
   });
   payChart = new Chart(document.getElementById('payChart'), {
     type:'doughnut',
@@ -318,7 +443,7 @@ function initCharts(){
 // ---------- Aggregation ----------
 function parseAll(){ return entries.map(e => ({...e, _d: parseDateKey(e.date)})); }
 function sumField(rows, field, s, e){ return rows.filter(r=>inRange(r._d,s,e)).reduce((a,r)=>a+(r[field]||0),0); }
-function sumCat(rows, cat, s, e){ return rows.filter(r=>inRange(r._d,s,e)).reduce((a,r)=>a+cat.get(r),0); }
+function sumCat(rows, fn, s, e){ return rows.filter(r=>inRange(r._d,s,e)).reduce((a,r)=>a+fn(r),0); }
 
 // ---------- Render ----------
 function renderAll(){
@@ -326,33 +451,53 @@ function renderAll(){
   const {s,e,label} = periodBounds(period);
   document.getElementById('periodSub').textContent = entries.length ? `Showing ${label}` : '';
 
-  const totalSale = sumField(rows,'totalSale',s,e);
-  const entriesCount = sumField(rows,'entriesCount',s,e);
-  const foc = sumField(rows,'focGuests',s,e);
-  const expense = sumField(rows,'expense',s,e);
-  document.getElementById('kpiGrid').innerHTML = `
-    <div class="kpi-cell"><div class="lbl">Total sale</div><div class="num">${fmtMoney(totalSale)}</div></div>
-    <div class="kpi-cell"><div class="lbl">Entries (visitors)</div><div class="num">${entriesCount.toLocaleString()}</div></div>
-    <div class="kpi-cell"><div class="lbl">FOC guests</div><div class="num">${foc.toLocaleString()}</div></div>
-    <div class="kpi-cell"><div class="lbl">Expense</div><div class="num">${fmtMoney(expense)}</div></div>`;
+  const totalIndoor = sumCat(rows, CATS[0].sale, s, e);
+  const totalEntry = sumCat(rows, CATS[1].sale, s, e);
+  const totalCafe = sumCat(rows, CATS[2].sale, s, e);
+  const outdoorSale = sumField(rows,'outdoorSale',s,e);
+  const totalOnline = sumField(rows,'indoorOnline',s,e) + sumField(rows,'entryOnline',s,e) + sumField(rows,'cafeOnline',s,e);
+  const totalCash = sumField(rows,'indoorCash',s,e) + sumField(rows,'entryCash',s,e) + sumField(rows,'cafeCash',s,e);
+  const totalPayment = totalOnline + totalCash + outdoorSale;
+  const cardsSold = sumField(rows,'cardsSold',s,e);
+  const couponSold = sumField(rows,'couponSold',s,e);
+  const focRows = focEntries.map(f => ({...f, _d: parseDateKey(f.date)})).filter(f => inRange(f._d,s,e));
+  const focCafeTotal = focRows.reduce((a,f)=>a+(f.amount||0),0);
+
+  document.getElementById('misGrid').innerHTML = `
+    <div class="mis-cell"><div class="lbl">Total online</div><div class="num">${fmtMoney(totalOnline)}</div></div>
+    <div class="mis-cell"><div class="lbl">Total cash</div><div class="num">${fmtMoney(totalCash)}</div></div>
+    <div class="mis-cell"><div class="lbl">Total payment</div><div class="num">${fmtMoney(totalPayment)}</div></div>
+    <div class="mis-cell"><div class="lbl">Cards sold</div><div class="num">${cardsSold.toLocaleString()}</div></div>
+    <div class="mis-cell"><div class="lbl">Coupon sold</div><div class="num">${couponSold.toLocaleString()}</div></div>
+    <div class="mis-cell"><div class="lbl">FOC Cafe total</div><div class="num">${fmtMoney(focCafeTotal)}</div></div>`;
 
   document.getElementById('catGrid').innerHTML = CATS.map(cat => {
-    const catSale = sumCat(rows,cat,s,e);
-    let splitHtml = '';
-    let footHtml = '';
-    if(cat.key === 'cafe'){
-      const cash = sumField(rows,'cafeCash',s,e);
-      const online = sumField(rows,'cafeOnline',s,e);
-      splitHtml = `<div class="split"><span>Cash <b>${fmtMoney(cash)}</b></span><span>Online <b>${fmtMoney(online)}</b></span></div>`;
+    const sale = sumCat(rows,cat.sale,s,e);
+    const online = sumCat(rows,cat.online,s,e);
+    const cash = sumCat(rows,cat.cash,s,e);
+    let rowsHtml = `<div><span>Online</span><b>${fmtMoney(online)}</b></div><div><span>Cash</span><b>${fmtMoney(cash)}</b></div>`;
+    if(cat.key==='indoor'){
+      const dashSale = sumField(rows,'indoorDashboardSale',s,e);
+      const foc = sumField(rows,'indoorFoc',s,e);
+      const disc = sumField(rows,'indoorDiscount',s,e);
+      const exp = sumField(rows,'indoorExpense',s,e);
+      rowsHtml += `<div><span>Dashboard sale (ref.)</span><b>${fmtMoney(dashSale)}</b></div><div><span>FOC</span><b>${fmtMoney(foc)}</b></div><div><span>Discount</span><b>${fmtMoney(disc)}</b></div><div><span>Expense</span><b>${fmtMoney(exp)}</b></div>`;
     }
-    if(cat.key === 'entries'){
-      footHtml = `<div class="foot">₹${ENTRY_FEE} × ${entriesCount.toLocaleString()} visitors</div>`;
+    if(cat.key==='entry'){
+      const foc = sumField(rows,'entryFoc',s,e); const disc = sumField(rows,'entryDiscount',s,e);
+      rowsHtml += `<div><span>FOC</span><b>${fmtMoney(foc)}</b></div><div><span>Discount</span><b>${fmtMoney(disc)}</b></div>`;
+    }
+    if(cat.key==='cafe'){
+      const foc = sumField(rows,'cafeFoc',s,e); const disc = sumField(rows,'cafeDiscount',s,e);
+      rowsHtml += `<div><span>FOC</span><b>${fmtMoney(foc)}</b></div><div><span>Discount</span><b>${fmtMoney(disc)}</b></div>`;
+    }
+    if(cat.key==='outdoor'){
+      rowsHtml = `<div><span>Cards sold</span><b>${cardsSold}</b></div><div><span>Coupon sold</span><b>${couponSold}</b></div><div class="muted-cell" style="font-size:11px; padding-top:4px;">Payment method not split for Outdoor</div>`;
     }
     return `<div class="cat-card">
       <div class="top"><span class="dot" style="background:${cat.color}"></span><span class="name">${cat.label}</span></div>
-      <div class="sale">${fmtMoney(catSale)}</div>
-      ${splitHtml}
-      ${footHtml}
+      <div class="sale">${fmtMoney(sale)}</div>
+      <div class="rows">${rowsHtml}</div>
     </div>`;
   }).join('');
 
@@ -365,69 +510,20 @@ function renderAll(){
     buckets.push({ label:d.toLocaleDateString(undefined,{month:'short',day:'numeric'}), s:bs, e:be });
   }
   trendChart.data.labels = buckets.map(b=>b.label);
-  CATS.forEach((cat,i)=> trendChart.data.datasets[i].data = buckets.map(b => sumCat(rows,cat,b.s,b.e)));
+  CATS.forEach((cat,i)=> trendChart.data.datasets[i].data = buckets.map(b => sumCat(rows,cat.sale,b.s,b.e)));
   trendChart.update();
   document.getElementById('trendLegend').innerHTML = CATS.map(c => `<span><i style="background:${c.color}"></i>${c.label}</span>`).join('');
 
-  shareChart.data.datasets[0].data = CATS.map(cat => sumCat(rows,cat,s,e));
+  shareChart.data.datasets[0].data = CATS.map(cat => sumCat(rows,cat.sale,s,e));
   shareChart.update();
 
-  payChart.data.datasets[0].data = [sumField(rows,'paymentCash',s,e), sumField(rows,'paymentOnline',s,e)];
+  payChart.data.datasets[0].data = [totalCash, totalOnline];
   payChart.update();
 
-  const exp = sumField(rows,'expense',s,e);
-  const cafeCash = sumField(rows,'cafeCash',s,e);
-  const cafeOnline = sumField(rows,'cafeOnline',s,e);
-  const cafeTotal = sumCat(rows, CATS[0], s, e);
-  const indoorSale = sumCat(rows, CATS[1], s, e);
-  const outdoorSale = sumCat(rows, CATS[2], s, e);
-  const entriesSale = sumCat(rows, CATS[3], s, e);
-  const categorySum = cafeTotal + indoorSale + outdoorSale + entriesSale;
-  const payCash = sumField(rows,'paymentCash',s,e);
-  const payOnline = sumField(rows,'paymentOnline',s,e);
-  const payTotal = payCash + payOnline;
-  const netProfit = totalSale - exp;
-  const mismatch = Math.round(categorySum) !== Math.round(totalSale);
-
-  document.getElementById('breakdownSection').innerHTML = `
-    <div class="bd-row">
-      <div><div class="bd-label"><b>Cafe sale</b></div><div class="bd-formula">Cash ${fmtMoney(cafeCash)} + Online ${fmtMoney(cafeOnline)}</div></div>
-      <div class="bd-value">${fmtMoney(cafeTotal)}</div>
-    </div>
-    <div class="bd-row">
-      <div><div class="bd-label"><b>Indoor gaming zone sale</b></div><div class="bd-formula">From Indoor Sale column</div></div>
-      <div class="bd-value">${fmtMoney(indoorSale)}</div>
-    </div>
-    <div class="bd-row">
-      <div><div class="bd-label"><b>Outdoor amusement park sale</b></div><div class="bd-formula">From Outdoor Sale column</div></div>
-      <div class="bd-value">${fmtMoney(outdoorSale)}</div>
-    </div>
-    <div class="bd-row">
-      <div><div class="bd-label"><b>Entries sale</b></div><div class="bd-formula">${entriesCount.toLocaleString()} visitors × ₹${ENTRY_FEE}</div></div>
-      <div class="bd-value">${fmtMoney(entriesSale)}</div>
-    </div>
-    <div class="bd-row total">
-      <div><div class="bd-label"><b>Total sale (sum of categories)</b></div><div class="bd-formula">Cafe + Indoor + Outdoor + Entries</div></div>
-      <div class="bd-value">${fmtMoney(categorySum)}</div>
-    </div>
-    <div class="bd-row">
-      <div><div class="bd-label"><b>FOC guests</b></div><div class="bd-formula">Complimentary — not counted in sale</div></div>
-      <div class="bd-value">${foc.toLocaleString()}</div>
-    </div>
-    <div class="bd-row">
-      <div><div class="bd-label"><b>Payment total</b></div><div class="bd-formula">Cash ${fmtMoney(payCash)} + Online ${fmtMoney(payOnline)}</div></div>
-      <div class="bd-value">${fmtMoney(payTotal)}</div>
-    </div>
-    <div class="bd-row">
-      <div><div class="bd-label"><b>Expense</b></div><div class="bd-formula">From Expense column</div></div>
-      <div class="bd-value">${fmtMoney(exp)}</div>
-    </div>
-    <div class="bd-row total">
-      <div><div class="bd-label"><b>Net profit</b></div><div class="bd-formula">Total sale ${fmtMoney(totalSale)} − Expense ${fmtMoney(exp)}</div></div>
-      <div class="bd-value">${fmtMoney(netProfit)}</div>
-    </div>
-    ${mismatch ? `<div class="bd-note">Note: the sum of Cafe + Indoor + Outdoor + Entries (${fmtMoney(categorySum)}) doesn\u2019t match the Sheet\u2019s Total Sale column (${fmtMoney(totalSale)}) for this period — worth double-checking those columns.</div>` : ''}
-  `;
+  const focSorted = [...focRows].sort((a,b)=> b.date.localeCompare(a.date)).slice(0,100);
+  document.getElementById('focTable').innerHTML = focSorted.length ? `<table><thead><tr><th>Date</th><th>Name/Ref.</th><th>Amount</th></tr></thead><tbody>${
+    focSorted.map(f=>`<tr><td>${fmtDate(f.date)}</td><td>${escapeHtml(f.name)}</td><td>${fmtMoney(f.amount)}</td></tr>`).join('')
+  }</tbody></table>` : '<div class="empty">No FOC Cafe entries for this period yet.</div>';
 
   const tableRows = [...entries].filter(r=>inRange(parseDateKey(r.date),s,e)).sort((a,b)=> b.date.localeCompare(a.date) || Number(b.id)-Number(a.id)).slice(0,150);
   document.getElementById('entryTable').innerHTML = tableHtml(tableRows);
@@ -436,31 +532,33 @@ function renderAll(){
 function tableHtml(rows){
   if(rows.length===0) return '<div class="empty">No rows for this period yet.</div>';
   const body = rows.map(r => {
-    const net = r.totalSale - r.expense;
+    const totalIndoor = r.indoorOnline + r.indoorCash;
+    const totalEntry = r.entryCash + r.entryOnline;
+    const totalCafeSale = r.cafeCash + r.cafeOnline;
+    const total = totalIndoor + r.outdoorSale + totalEntry + totalCafeSale;
     return `<tr>
       <td>${fmtDate(r.date)}</td>
-      <td>${fmtMoney(r.totalSale)}</td>
-      <td>${fmtMoney(r.indoorSale)}</td>
+      <td class="muted-cell">${fmtMoney(r.indoorSale)}</td><td class="muted-cell">${fmtMoney(r.indoorDashboardSale)}</td><td>${fmtMoney(r.indoorOnline)}</td><td>${fmtMoney(r.indoorCash)}</td><td class="muted-cell">${fmtMoney(r.indoorFoc)}</td><td class="muted-cell">${fmtMoney(r.indoorDiscount)}</td><td class="muted-cell">${fmtMoney(r.indoorExpense)}</td><td>${fmtMoney(totalIndoor)}</td>
       <td>${fmtMoney(r.outdoorSale)}</td>
-      <td class="muted-cell">${fmtMoney(r.cafeCash)}</td>
-      <td class="muted-cell">${fmtMoney(r.cafeOnline)}</td>
-      <td>${fmtMoney(r.cafeSaleTotal)}</td>
-      <td class="muted-cell">${fmtMoney(r.paymentCash)}</td>
-      <td class="muted-cell">${fmtMoney(r.paymentOnline)}</td>
-      <td>${fmtMoney(r.paymentTotal)}</td>
-      <td>${r.focGuests||0}</td>
-      <td>${r.entriesCount||0}</td>
-      <td>${fmtMoney(r.entriesSale)}</td>
-      <td>${fmtMoney(r.expense)}</td>
-      <td>${fmtMoney(net)}</td>
-      <td class="muted-cell">${escapeHtml(r.note)}</td>
+      <td>${r.cardsSold}</td><td>${r.couponSold}</td>
+      <td>${fmtMoney(r.entryCash)}</td><td>${fmtMoney(r.entryOnline)}</td><td class="muted-cell">${fmtMoney(r.entryFoc)}</td><td class="muted-cell">${fmtMoney(r.entryDiscount)}</td><td>${fmtMoney(totalEntry)}</td>
+      <td>${fmtMoney(r.cafeCash)}</td><td>${fmtMoney(r.cafeOnline)}</td><td class="muted-cell">${fmtMoney(r.cafeFoc)}</td><td class="muted-cell">${fmtMoney(r.cafeDiscount)}</td><td>${fmtMoney(totalCafeSale)}</td>
+      <td>${fmtMoney(total)}</td>
     </tr>`;
   }).join('');
-  return `<table><thead><tr><th>Date</th><th>Total Sale</th><th>Indoor</th><th>Outdoor</th><th>Cafe Cash</th><th>Cafe Online</th><th>Cafe Total</th><th>Pay Cash</th><th>Pay Online</th><th>Pay Total</th><th>FOC</th><th>Entries</th><th>Entries Sale</th><th>Expense</th><th>Net</th><th>Note</th></tr></thead><tbody>${body}</tbody></table>`;
+  return `<table><thead><tr>
+    <th>Date</th>
+    <th>Ind.Sale</th><th>Ind.DashSale</th><th>Ind.Online</th><th>Ind.Cash</th><th>Ind.FOC</th><th>Ind.Disc</th><th>Ind.Exp</th><th>Total Indoor</th>
+    <th>Outdoor Sale</th>
+    <th>Cards Sold</th><th>Coupon Sold</th>
+    <th>Entry Cash</th><th>Entry Online</th><th>Entry FOC</th><th>Entry Disc</th><th>Total Entry</th>
+    <th>Cafe Cash</th><th>Cafe Online</th><th>Cafe FOC</th><th>Cafe Disc</th><th>Total Cafe</th>
+    <th>Total Payment</th>
+  </tr></thead><tbody>${body}</tbody></table>`;
 }
 
-if(typeof Chart === 'undefined' || typeof Papa === 'undefined'){
-  document.body.innerHTML = '<div style="max-width:520px; margin:80px auto; padding:24px; font-family:sans-serif; text-align:center;"><h2>Couldn\u2019t load required scripts</h2><p style="color:#666;">Chart.js or PapaParse failed to load from the CDN. Check your internet connection, or that your network/browser isn\u2019t blocking cdn.jsdelivr.net, then refresh the page.</p></div>';
+if(typeof Chart === 'undefined'){
+  document.body.innerHTML = '<div style="max-width:520px; margin:80px auto; padding:24px; font-family:sans-serif; text-align:center;"><h2>Couldn\u2019t load required scripts</h2><p style="color:#666;">A required script failed to load from the CDN. Check your internet connection or try again.</p></div>';
 } else {
   initCharts();
   loadData();
