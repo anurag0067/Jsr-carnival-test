@@ -219,11 +219,8 @@
       </div>
     </div>
 
-    <h2 class="section-title">Cafe FOC — named log</h2>
+    <h2 class="section-title">Cafe FOC</h2>
     <div class="table-wrap" id="focTable"></div>
-
-    <h2 class="section-title">All rows</h2>
-    <div class="table-wrap" id="entryTable"></div>
 
   </div>
 
@@ -492,7 +489,7 @@ function renderAll(){
       rowsHtml += `<div><span>FOC</span><b>${fmtMoney(foc)}</b></div><div><span>Discount</span><b>${fmtMoney(disc)}</b></div>`;
     }
     if(cat.key==='outdoor'){
-      rowsHtml = `<div><span>Cards sold</span><b>${cardsSold}</b></div><div><span>Coupon sold</span><b>${couponSold}</b></div><div class="muted-cell" style="font-size:11px; padding-top:4px;">Payment method not split for Outdoor</div>`;
+      rowsHtml = `<div>${outdoorSale}</div>`;
     }
     return `<div class="cat-card">
       <div class="top"><span class="dot" style="background:${cat.color}"></span><span class="name">${cat.label}</span></div>
