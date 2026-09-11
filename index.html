@@ -12,20 +12,16 @@
     --bg:#F4F4F1; --surface:#FFFFFF; --surface-muted:#FAFAF9;
     --ink:#141412; --ink-muted:#65645D; --ink-faint:#9B9A92;
     --line:#E1E0D9; --line-strong:#141412;
+    --up:#1f6b3a; --down:#8a1f1f;
   }
   *{box-sizing:border-box;}
-  body{margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',-apple-system,sans-serif; padding:0 0 70px; font-variant-numeric:tabular-nums;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',-apple-system,sans-serif; font-variant-numeric:tabular-nums;}
   h1,.num{font-family:'Fraunces',serif;}
-  .wrap{max-width:1200px; margin:0 auto; padding:0 20px;}
-
-  .topbar{border-bottom:1px solid var(--line-strong); background:var(--surface);}
-  .topbar-inner{max-width:1200px; margin:0 auto; padding:22px 20px; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;}
-  .brand{display:flex; align-items:center; gap:13px;}
-  .brand-badge{width:42px; height:42px; background:var(--ink); color:#fff; border-radius:9px; display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-weight:600; font-size:16px; flex-shrink:0;}
-  .brand h1{font-size:19px; font-weight:600; margin:0; line-height:1.2;}
-  .brand p{color:var(--ink-muted); font-size:12.5px; margin:3px 0 0;}
-  .btn{border:none; border-radius:9px; padding:10px 16px; font-size:13.5px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;}
+  .btn{border:none; border-radius:9px; padding:10px 16px; font-size:13.5px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:opacity .15s ease, background .15s ease;}
+  .btn:hover{opacity:0.85;}
   .btn-dark{background:var(--ink); color:#fff;}
+  .btn-ghost{background:transparent; border:1px solid var(--line); color:var(--ink-muted);}
+  .btn-ghost:hover{background:var(--surface-muted); color:var(--ink); opacity:1;}
 
   .login-gate{position:fixed; inset:0; background:var(--bg); z-index:100; display:flex; align-items:center; justify-content:center; padding:20px;}
   .login-box{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:32px; width:100%; max-width:360px;}
@@ -37,44 +33,71 @@
   .login-box .btn{width:100%; margin-top:8px; padding:12px;}
   #dashboardRoot{display:none;}
 
-  .banner{background:var(--ink); color:#fff; border-radius:10px; padding:12px 16px; font-size:13px; margin:20px 0; display:none;}
+  /* App shell: sidebar + main */
+  .app-shell{display:flex; align-items:flex-start; min-height:100vh;}
+  .sidebar{width:220px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--line); padding:22px 14px; display:flex; flex-direction:column; position:sticky; top:0; height:100vh;}
+  .sidebar-brand{display:flex; align-items:center; gap:10px; padding:0 8px; margin-bottom:26px;}
+  .brand-badge{width:36px; height:36px; background:var(--ink); color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-weight:600; font-size:14px; flex-shrink:0;}
+  .sidebar-brand .name{font-size:14px; font-weight:700; line-height:1.2;}
+  .sidebar-nav{display:flex; flex-direction:column; gap:2px;}
+  .nav-item{display:block; padding:10px 12px; border-radius:8px; color:var(--ink-muted); font-size:13.5px; font-weight:600; text-decoration:none; cursor:pointer; border-left:2.5px solid transparent; transition:background .15s ease, color .15s ease;}
+  .nav-item.active{background:var(--surface-muted); color:var(--ink); border-left-color:var(--ink);}
+  .nav-item:hover{color:var(--ink);}
+  .sidebar-bottom{margin-top:auto; border-top:1px solid var(--line); padding-top:14px;}
+  .user-chip{font-size:12px; color:var(--ink-muted); padding:0 8px; margin-bottom:10px; line-height:1.5;}
+  .user-chip b{display:block; color:var(--ink); font-size:13px;}
+
+  .main-content{flex:1; min-width:0;}
+  .wrap-inner{max-width:1200px; margin:0 auto; padding:0 32px 60px;}
+
+  .page-header{padding:28px 32px 0;}
+  .page-header h1{font-size:26px; font-weight:600; margin:0;}
+
+  .tab-row{display:flex; gap:26px; padding:0 32px; border-bottom:1px solid var(--line); margin-top:18px; align-items:center; justify-content:space-between;}
+  .tabs-left{display:flex; gap:26px;}
+  .tab-row button.tab-btn{background:none; border:none; padding:12px 2px; font-size:13.5px; font-weight:600; color:var(--ink-muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; font-family:'Inter',sans-serif; transition:color .15s ease, border-color .15s ease;}
+  .tab-row button.tab-btn:hover{color:var(--ink);}
+  .tab-row button.tab-btn.active{color:var(--ink); border-bottom-color:var(--ink);}
+
+  .banner{background:var(--ink); color:#fff; border-radius:10px; padding:12px 16px; font-size:13px; margin:20px 32px 0; display:none;}
   .banner code{background:rgba(255,255,255,0.15); padding:2px 6px; border-radius:4px;}
 
-  .period-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:24px 0 22px; flex-wrap:wrap;}
-  .seg{display:flex; gap:2px; background:var(--surface-muted); border:1px solid var(--line); border-radius:9px; padding:3px;}
-  .seg button{border:none; background:transparent; color:var(--ink-muted); font-size:13px; font-weight:600; padding:8px 15px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif;}
-  .seg button.active{background:var(--ink); color:#fff;}
-  .period-sub{font-size:12.5px; color:var(--ink-faint);}
-
-  .mis-row{display:grid; grid-template-columns:repeat(3, 1fr); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:32px; background:var(--surface);}
-  .mis-cell{padding:18px 20px; border-right:1px solid var(--line); border-bottom:1px solid var(--line);}
-  .mis-cell:nth-child(3n){border-right:none;}
-  .mis-row .mis-cell:nth-last-child(-n+3){border-bottom:none;}
-  .mis-cell .lbl{font-size:12px; color:var(--ink-muted); margin-bottom:7px;}
-  .mis-cell .num{font-size:22px; font-weight:600;}
+  .kpi-row-v2{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; padding:24px 32px 0;}
+  .kpi-v2{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 20px; box-shadow:0 1px 2px rgba(20,20,18,0.04); transition:box-shadow .15s ease;}
+  .kpi-v2:hover{box-shadow:0 2px 8px rgba(20,20,18,0.07);}
+  .kpi-v2 .lbl{font-size:12px; color:var(--ink-muted); margin-bottom:9px;}
+  .kpi-v2 .num{font-size:23px; font-weight:600;}
+  .kpi-v2 .delta{font-size:11.5px; margin-top:8px;}
+  .kpi-v2 .delta.up{color:var(--up);}
+  .kpi-v2 .delta.down{color:var(--down);}
+  .kpi-v2 .delta.flat{color:var(--ink-faint);}
 
   .section-title{font-family:'Fraunces',serif; font-size:17px; font-weight:600; margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .section{padding:0 32px; margin-top:32px;}
 
-  .cat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:14px; margin-bottom:32px;}
-  .cat-card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 20px;}
-  .cat-card .top{display:flex; align-items:center; gap:8px; margin-bottom:12px;}
-  .cat-card .dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
-  .cat-card .name{font-size:13px; font-weight:600; color:var(--ink-muted);}
-  .cat-card .sale{font-size:22px; font-weight:600; font-family:'Fraunces',serif; margin-bottom:12px;}
-  .cat-card .rows{font-size:12px; color:var(--ink-muted); border-top:1px solid var(--bg); padding-top:10px;}
-  .cat-card .rows div{display:flex; justify-content:space-between; padding:3px 0;}
-  .cat-card .rows b{color:var(--ink); font-weight:600;}
-
-  .charts-grid{display:grid; grid-template-columns:1.6fr 1fr 1fr; gap:16px; margin-bottom:32px;}
-  .card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px;}
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px; box-shadow:0 1px 2px rgba(20,20,18,0.04);}
   .card-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
   .card-title{font-size:13.5px; font-weight:600; color:var(--ink);}
-  .chart-box{position:relative; height:225px;}
-  .legend-row{display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; font-size:11px; color:var(--ink-muted);}
+  .chart-box{position:relative; height:240px;}
+  .legend-row{display:flex; gap:14px; flex-wrap:wrap; margin-top:12px; font-size:11px; color:var(--ink-muted);}
   .legend-row span{display:flex; align-items:center; gap:5px;}
   .legend-row i{width:8px; height:8px; border-radius:2px; display:inline-block;}
 
-  .table-wrap{max-height:420px; overflow:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface); margin-bottom:32px;}
+  /* Category table + donut, side by side like the reference */
+  .cat-grid-v2{display:grid; grid-template-columns:repeat(auto-fit, minmax(250px,1fr)); gap:14px;}
+  .cat-card-v2{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px; box-shadow:0 1px 2px rgba(20,20,18,0.04);}
+  .cat-card-v2 .top{display:flex; align-items:center; gap:8px; margin-bottom:10px;}
+  .cat-card-v2 .dot{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
+  .cat-card-v2 .name{font-size:13px; font-weight:600; color:var(--ink-muted);}
+  .cat-card-v2 .sale{font-size:24px; font-weight:600; font-family:'Fraunces',serif;}
+  .cat-card-v2 .share-bar{height:6px; background:var(--bg); border-radius:3px; overflow:hidden; margin:12px 0 6px;}
+  .cat-card-v2 .share-bar-fill{height:100%; border-radius:3px;}
+  .cat-card-v2 .share-label{font-size:11px; color:var(--ink-faint); margin-bottom:16px;}
+  .cat-card-v2 .rows{font-size:12px; color:var(--ink-muted); border-top:1px solid var(--bg); padding-top:12px;}
+  .cat-card-v2 .rows div{display:flex; justify-content:space-between; padding:4px 0;}
+  .cat-card-v2 .rows b{color:var(--ink); font-weight:600;}
+
+  .table-wrap{max-height:420px; overflow:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface); box-shadow:0 1px 2px rgba(20,20,18,0.04);}
   table{width:100%; border-collapse:collapse; font-size:12px;}
   th{text-align:right; font-size:10.5px; color:var(--ink-muted); font-weight:600; padding:10px 11px; border-bottom:1px solid var(--line-strong); white-space:nowrap; position:sticky; top:0; background:var(--surface);}
   th:first-child, th:last-child{text-align:left;}
@@ -92,10 +115,15 @@
   .field label{display:block; font-size:11.5px; color:var(--ink-muted); margin-bottom:5px;}
   .field input{width:100%; border:1px solid var(--line); border-radius:8px; padding:9px 10px; font-size:13px; font-family:'Inter',sans-serif; color:var(--ink); background:var(--surface-muted);}
   .form-msg{font-size:12.5px; margin-top:12px; display:none;}
-  .form-msg.err{color:#8a1f1f;}
-  .form-msg.ok{color:#1f6b3a;}
+  .form-msg.err{color:var(--down);}
+  .form-msg.ok{color:var(--up);}
 
-  @media (max-width:960px){ .charts-grid{grid-template-columns:1fr;} .mis-row{grid-template-columns:1fr 1fr;} .mis-cell:nth-child(3n){border-right:1px solid var(--line);} .mis-cell:nth-child(2n){border-right:none;} .form-grid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:960px){
+    .sidebar{display:none;}
+    .kpi-row-v2{grid-template-columns:1fr 1fr;}
+    .form-grid{grid-template-columns:1fr 1fr;}
+    .page-header, .tab-row, .kpi-row-v2, .section, .banner{padding-left:16px; padding-right:16px;}
+  }
 </style>
 </head>
 <body>
@@ -111,139 +139,147 @@
   </div>
 
   <div id="dashboardRoot">
+  <div class="app-shell">
 
-  <div class="topbar">
-    <div class="topbar-inner">
-      <div class="brand">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
         <div class="brand-badge">CD</div>
-        <div>
-          <h1>Carnival of Dreams</h1>
-          <p>Indoor · outdoor · entry · cafe</p>
+        <div class="name">Carnival of<br>Dreams</div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-target="secOverview">Overview</a>
+        <a class="nav-item" data-target="secCategory">By category</a>
+        <a class="nav-item" data-target="secFoc">FOC log</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="user-chip"><b id="sessionLabel">Viewer</b>session</div>
+        <button class="btn btn-ghost" id="logoutBtn" style="width:100%;">Log out</button>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <div class="page-header">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <h1>Reports</h1>
+          <button class="btn btn-dark" id="toggleFormBtn" style="display:none;">+ Add entry</button>
         </div>
       </div>
-      <button class="btn btn-dark" id="toggleFormBtn" style="display:none;">+ Add entry</button>
+
+      <div class="tab-row">
+        <div class="tabs-left" id="periodSeg">
+          <button class="tab-btn active" data-p="today">Today</button>
+          <button class="tab-btn" data-p="week">This week</button>
+          <button class="tab-btn" data-p="month">This month</button>
+          <button class="tab-btn" data-p="all">All time</button>
+        </div>
+      </div>
+
+      <div class="banner" id="setupBanner">
+        Not connected yet. Paste your data source URL into <code>DATA_URL</code> near the top of this file's &lt;script&gt; section.
+      </div>
+
+      <div class="section" id="addFormSection" style="margin-top:24px;">
+        <div class="add-form" id="addForm" style="display:none;">
+          <h2 class="section-title" style="border-bottom:none; margin-bottom:6px;">Add / update a day's entry</h2>
+          <div class="hint">Adding for a date that already has a row will update it, not duplicate it. Totals are calculated automatically.</div>
+
+          <div class="field" style="max-width:220px; margin-bottom:14px;"><label>Date</label><input type="date" id="fDate"></div>
+
+          <div class="fieldset-title">Indoor</div>
+          <div class="form-grid">
+            <div class="field"><label>Sale (₹)</label><input type="number" id="fIndoorSale" min="0"></div>
+            <div class="field"><label>Dashboard Sale (₹)</label><input type="number" id="fIndoorDashboardSale" min="0"></div>
+            <div class="field"><label>Online (₹)</label><input type="number" id="fIndoorOnline" min="0"></div>
+            <div class="field"><label>Cash (₹)</label><input type="number" id="fIndoorCash" min="0"></div>
+            <div class="field"><label>Expense (₹)</label><input type="number" id="fIndoorExpense" min="0"></div>
+            <div class="field"><label>FOC (₹)</label><input type="number" id="fIndoorFoc" min="0"></div>
+            <div class="field"><label>Discount (₹)</label><input type="number" id="fIndoorDiscount" min="0"></div>
+          </div>
+
+          <div class="fieldset-title">Adventure</div>
+          <div class="form-grid">
+            <div class="field"><label>Sale (₹)</label><input type="number" id="fAdventureSale" min="0"></div>
+            <div class="field"><label>Expense (₹)</label><input type="number" id="fAdventureExpense" min="0"></div>
+            <div class="field"><label>Discount (₹)</label><input type="number" id="fAdventureDiscount" min="0"></div>
+          </div>
+
+          <div class="fieldset-title">Entry</div>
+          <div class="form-grid">
+            <div class="field"><label>Online (₹)</label><input type="number" id="fEntryOnline" min="0"></div>
+            <div class="field"><label>Cash (₹)</label><input type="number" id="fEntryCash" min="0"></div>
+            <div class="field"><label>FOC (₹)</label><input type="number" id="fEntryFoc" min="0"></div>
+            <div class="field"><label>Discount (₹)</label><input type="number" id="fEntryDiscount" min="0"></div>
+          </div>
+
+          <div class="fieldset-title">Cafe</div>
+          <div class="form-grid">
+            <div class="field"><label>Online (₹)</label><input type="number" id="fCafeOnline" min="0"></div>
+            <div class="field"><label>Cash (₹)</label><input type="number" id="fCafeCash" min="0"></div>
+            <div class="field"><label>FOC (₹)</label><input type="number" id="fCafeFoc" min="0"></div>
+            <div class="field"><label>Discount (₹)</label><input type="number" id="fCafeDiscount" min="0"></div>
+          </div>
+
+          <button class="btn btn-dark" id="submitEntryBtn" style="margin-top:16px;">Save entry</button>
+          <div class="form-msg" id="formMsg"></div>
+        </div>
+
+        <div class="add-form" id="focForm" style="display:none;">
+          <h2 class="section-title" style="border-bottom:none; margin-bottom:6px;">Add a Cafe FOC guest</h2>
+          <div class="hint">Each complimentary Cafe guest is logged individually — feeds the named FOC list and its total below.</div>
+          <div class="form-grid" style="grid-template-columns:repeat(3,1fr);">
+            <div class="field"><label>Date</label><input type="date" id="focDate"></div>
+            <div class="field"><label>Name / Ref.</label><input type="text" id="focName" placeholder="e.g. Gunakesh Sir"></div>
+            <div class="field"><label>Amount (₹)</label><input type="number" id="focAmount" min="0"></div>
+          </div>
+          <button class="btn btn-dark" id="submitFocBtn" style="margin-top:16px;">Save FOC entry</button>
+          <div class="form-msg" id="focFormMsg"></div>
+        </div>
+      </div>
+
+      <div id="secOverview">
+        <div class="kpi-row-v2" id="kpiGrid"></div>
+
+        <div class="section">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Sale trend — last 14 days</div></div>
+            <div class="chart-box"><canvas id="trendChart"></canvas></div>
+            <div class="legend-row" id="trendLegend"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="secCategory">
+        <h2 class="section-title">By category</h2>
+        <div class="cat-grid-v2" id="catGridV2"></div>
+      </div>
+
+      <div class="section" id="secFoc">
+        <h2 class="section-title">Cafe FOC — named log</h2>
+        <div class="table-wrap" id="focTable"></div>
+      </div>
+
     </div>
   </div>
-
-  <div class="wrap">
-
-    <div class="banner" id="setupBanner">
-      Not connected yet. Paste your data source URL into <code>DATA_URL</code> near the top of this file's &lt;script&gt; section.
-    </div>
-
-    <div class="add-form" id="addForm" style="display:none;">
-      <h2 class="section-title" style="border-bottom:none; margin-bottom:6px;">Add / update a day's entry</h2>
-      <div class="hint">Adding for a date that already has a row will update it, not duplicate it. Totals are calculated automatically.</div>
-
-      <div class="field" style="max-width:220px; margin-bottom:14px;"><label>Date</label><input type="date" id="fDate"></div>
-
-      <div class="fieldset-title">Indoor</div>
-      <div class="form-grid">
-        <div class="field"><label>Sale (₹)</label><input type="number" id="fIndoorSale" min="0"></div>
-        <div class="field"><label>Dashboard Sale (₹)</label><input type="number" id="fIndoorDashboardSale" min="0"></div>
-        <div class="field"><label>Online (₹)</label><input type="number" id="fIndoorOnline" min="0"></div>
-        <div class="field"><label>Cash (₹)</label><input type="number" id="fIndoorCash" min="0"></div>
-        <div class="field"><label>FOC (₹)</label><input type="number" id="fIndoorFoc" min="0"></div>
-        <div class="field"><label>Discount (₹)</label><input type="number" id="fIndoorDiscount" min="0"></div>
-        <div class="field"><label>Expense (₹)</label><input type="number" id="fIndoorExpense" min="0"></div>
-      </div>
-
-      <div class="fieldset-title">Outdoor</div>
-      <div class="form-grid">
-        <div class="field"><label>Sale (₹)</label><input type="number" id="fOutdoorSale" min="0"></div>
-        <div class="field"><label>Cards Sold</label><input type="number" id="fCardsSold" min="0"></div>
-        <div class="field"><label>Coupon Sold</label><input type="number" id="fCouponSold" min="0"></div>
-      </div>
-
-      <div class="fieldset-title">Entry</div>
-      <div class="form-grid">
-        <div class="field"><label>Cash (₹)</label><input type="number" id="fEntryCash" min="0"></div>
-        <div class="field"><label>Online (₹)</label><input type="number" id="fEntryOnline" min="0"></div>
-        <div class="field"><label>FOC (₹)</label><input type="number" id="fEntryFoc" min="0"></div>
-        <div class="field"><label>Discount (₹)</label><input type="number" id="fEntryDiscount" min="0"></div>
-      </div>
-
-      <div class="fieldset-title">Cafe</div>
-      <div class="form-grid">
-        <div class="field"><label>Cash (₹)</label><input type="number" id="fCafeCash" min="0"></div>
-        <div class="field"><label>Online (₹)</label><input type="number" id="fCafeOnline" min="0"></div>
-        <div class="field"><label>FOC (₹)</label><input type="number" id="fCafeFoc" min="0"></div>
-        <div class="field"><label>Discount (₹)</label><input type="number" id="fCafeDiscount" min="0"></div>
-      </div>
-
-      <button class="btn btn-dark" id="submitEntryBtn" style="margin-top:16px;">Save entry</button>
-      <div class="form-msg" id="formMsg"></div>
-    </div>
-
-    <div class="add-form" id="focForm" style="display:none;">
-      <h2 class="section-title" style="border-bottom:none; margin-bottom:6px;">Add a Cafe FOC guest</h2>
-      <div class="hint">Each complimentary Cafe guest is logged individually here — this feeds the named FOC list and its total below.</div>
-      <div class="form-grid" style="grid-template-columns:repeat(3,1fr);">
-        <div class="field"><label>Date</label><input type="date" id="focDate"></div>
-        <div class="field"><label>Name / Ref.</label><input type="text" id="focName" placeholder="e.g. Gunakesh Sir"></div>
-        <div class="field"><label>Amount (₹)</label><input type="number" id="focAmount" min="0"></div>
-      </div>
-      <button class="btn btn-dark" id="submitFocBtn" style="margin-top:16px;">Save FOC entry</button>
-      <div class="form-msg" id="focFormMsg"></div>
-    </div>
-
-    <div class="period-row">
-      <div class="seg" id="periodSeg">
-        <button data-p="today" class="active">Today</button>
-        <button data-p="week">This week</button>
-        <button data-p="month">This month</button>
-        <button data-p="all">All time</button>
-      </div>
-      <div class="period-sub" id="periodSub"></div>
-    </div>
-
-    <h2 class="section-title">Day total summary</h2>
-    <div class="mis-row" id="misGrid"></div>
-
-    <h2 class="section-title" style="margin-top:32px;">By category</h2>
-    <div class="cat-grid" id="catGrid"></div>
-
-    <div class="charts-grid">
-      <div class="card">
-        <div class="card-head"><div class="card-title">Sale trend — last 14 days</div></div>
-        <div class="chart-box"><canvas id="trendChart"></canvas></div>
-        <div class="legend-row" id="trendLegend"></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><div class="card-title">Category share</div></div>
-        <div class="chart-box"><canvas id="shareChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><div class="card-title">Cash vs online</div></div>
-        <div class="chart-box"><canvas id="payChart"></canvas></div>
-      </div>
-    </div>
-
-    <h2 class="section-title">Cafe FOC</h2>
-    <div class="table-wrap" id="focTable"></div>
-
-  </div>
-
   </div>
 
 <script>
 // ================= CONFIG =================
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbzyJhZmgE2NNNSgkcNVUQPB_y7QXnpsIk9Ay-Nl0DEKKSNj41N2sDzjYpBLYwp0-YSFlQ/exec';
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbwiUx22sOS3hjLSHMDlYHcNLptl7grxBABaisLNJpCdh_wQVYsOl_QjxvzJC9_3Kj9UHw/exec';
 // ============================================
 //
-// Raw inputs per day: Indoor (Sale, Dashboard Sale, Online, Cash, FOC,
-// Discount, Expense), Outdoor (Sale, Cards Sold, Coupon Sold), Entry (Cash,
-// Online, FOC, Discount), Cafe (Cash, Online, FOC, Discount). Plus a
-// separate named log of Cafe FOC guests (Date, Name, Amount).
+// Raw inputs per day: Indoor (Sale, Dashboard Sale, Online, Cash, Expense,
+// FOC, Discount), Adventure (Sale, Expense, Discount), Entry (Online, Cash,
+// FOC, Discount), Cafe (Online, Cash, FOC, Discount). Plus a separate named
+// log of Cafe FOC guests (Date, Name, Amount).
 //
-// Totals (Total Indoor Sale, Total Entry, Total Cafe Sale, Total Online,
-// Total Cash, Total Payment, FOC Cafe Total) are calculated automatically.
+// Every total (Total Indoor/Entry/Cafe/Adventure, Total Online, Total Cash,
+// Total Sale, Sale After Expense, etc.) is calculated automatically.
 
 const CATS = [
-  { key:'indoor', label:'Indoor',  color:'#141412', sale: r => r.indoorOnline+r.indoorCash, online: r => r.indoorOnline, cash: r => r.indoorCash },
-  { key:'entry',  label:'Entry',   color:'#5A5A55', sale: r => r.entryCash+r.entryOnline,    online: r => r.entryOnline,  cash: r => r.entryCash },
-  { key:'cafe',   label:'Cafe',    color:'#8B8A82', sale: r => r.cafeCash+r.cafeOnline,      online: r => r.cafeOnline,   cash: r => r.cafeCash },
-  { key:'outdoor',label:'Outdoor', color:'#B8B7AE', sale: r => r.outdoorSale,                online: () => 0,             cash: () => 0 },
+  { key:'indoor',    label:'Indoor',        color:'#141412', sale: r => r.indoorOnline+r.indoorCash, online: r => r.indoorOnline, cash: r => r.indoorCash },
+  { key:'entry',     label:'Entry',         color:'#5A5A55', sale: r => r.entryCash+r.entryOnline,    online: r => r.entryOnline,  cash: r => r.entryCash },
+  { key:'cafe',      label:'Cafe',          color:'#8B8A82', sale: r => r.cafeCash+r.cafeOnline,      online: r => r.cafeOnline,   cash: r => r.cafeCash },
+  { key:'adventure', label:'Adventure Sale',color:'#B8B7AE', sale: r => r.adventureSale,              online: () => 0,             cash: () => 0 },
 ];
 
 let entries = [];
@@ -266,6 +302,25 @@ function periodBounds(p){
   if(p==='week'){ const s=startOfWeek(now); const e=new Date(s); e.setDate(e.getDate()+6); e.setHours(23,59,59,999); return {s,e,label:'this week'}; }
   if(p==='month'){ const s=new Date(now.getFullYear(),now.getMonth(),1); const e=new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59,999); return {s,e,label:'this month'}; }
   return { s:new Date(0), e:new Date(8640000000000000), label:'all time' };
+}
+// Previous equivalent period, for the "+20% vs last week" style comparisons.
+function previousPeriodBounds(p){
+  const now = new Date();
+  if(p==='today'){ const d=new Date(now); d.setDate(d.getDate()-1); const s=new Date(d); s.setHours(0,0,0,0); const e=new Date(d); e.setHours(23,59,59,999); return {s,e,label:'yesterday'}; }
+  if(p==='week'){ const s=startOfWeek(now); s.setDate(s.getDate()-7); const e=new Date(s); e.setDate(e.getDate()+6); e.setHours(23,59,59,999); return {s,e,label:'last week'}; }
+  if(p==='month'){ const s=new Date(now.getFullYear(),now.getMonth()-1,1); const e=new Date(now.getFullYear(),now.getMonth(),0,23,59,59,999); return {s,e,label:'last month'}; }
+  return null; // no comparison for "all time"
+}
+function deltaHtml(current, previous){
+  if(previous === null) return '';
+  if(previous === 0){
+    if(current === 0) return `<div class="delta flat">No change</div>`;
+    return `<div class="delta up">New activity</div>`;
+  }
+  const pct = ((current-previous)/previous)*100;
+  const cls = pct > 0.5 ? 'up' : (pct < -0.5 ? 'down' : 'flat');
+  const sign = pct > 0 ? '+' : '';
+  return `<div class="delta ${cls}">${sign}${pct.toFixed(0)}% vs last</div>`;
 }
 
 // ---------- Backend ----------
@@ -295,7 +350,7 @@ async function loadData(){
   renderAll();
 }
 
-// ---------- Login gate ----------
+// ---------- Login / logout ----------
 const ADMIN_NAME = 'carnival';
 const ADMIN_PASSWORD_HASH = 'e385ff7a062b6cfb48740016610b22d335e9dae2d3268fbfb4741a3a9346d635';
 
@@ -312,17 +367,40 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
   if(isAdmin){
     adminPasswordHash = passHash;
     document.getElementById('toggleFormBtn').style.display = 'inline-block';
+    document.getElementById('sessionLabel').textContent = 'Admin';
   }
   document.getElementById('loginGate').style.display = 'none';
   document.getElementById('dashboardRoot').style.display = 'block';
 });
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  adminPasswordHash = null;
+  document.getElementById('toggleFormBtn').style.display = 'none';
+  document.getElementById('addForm').style.display = 'none';
+  document.getElementById('focForm').style.display = 'none';
+  document.getElementById('sessionLabel').textContent = 'Viewer';
+  document.getElementById('dashboardRoot').style.display = 'none';
+  document.getElementById('loginGate').style.display = 'flex';
+  document.getElementById('loginName').value = '';
+  document.getElementById('loginPass').value = '';
+});
+
+// ---------- Sidebar nav ----------
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    item.classList.add('active');
+    const target = document.getElementById(item.dataset.target);
+    if(target) target.scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+});
 
 // ---------- Add / update daily entry ----------
-const addForm = document.getElementById('addForm');
 document.getElementById('toggleFormBtn').addEventListener('click', () => {
+  const addForm = document.getElementById('addForm');
+  const focForm = document.getElementById('focForm');
   const showing = addForm.style.display !== 'none';
   addForm.style.display = showing ? 'none' : 'block';
-  document.getElementById('focForm').style.display = showing ? 'none' : 'block';
+  focForm.style.display = showing ? 'none' : 'block';
   if(!showing){
     if(!document.getElementById('fDate').value) document.getElementById('fDate').value = dateKey(new Date());
     if(!document.getElementById('focDate').value) document.getElementById('focDate').value = dateKey(new Date());
@@ -340,10 +418,10 @@ document.getElementById('submitEntryBtn').addEventListener('click', async () => 
     const val = id => document.getElementById(id).value;
     const payload = {
       action:'addEntry', pinHash: adminPasswordHash, date,
-      indoorSale: val('fIndoorSale'), indoorDashboardSale: val('fIndoorDashboardSale'), indoorOnline: val('fIndoorOnline'), indoorCash: val('fIndoorCash'), indoorFoc: val('fIndoorFoc'), indoorDiscount: val('fIndoorDiscount'), indoorExpense: val('fIndoorExpense'),
-      outdoorSale: val('fOutdoorSale'), cardsSold: val('fCardsSold'), couponSold: val('fCouponSold'),
-      entryCash: val('fEntryCash'), entryOnline: val('fEntryOnline'), entryFoc: val('fEntryFoc'), entryDiscount: val('fEntryDiscount'),
-      cafeCash: val('fCafeCash'), cafeOnline: val('fCafeOnline'), cafeFoc: val('fCafeFoc'), cafeDiscount: val('fCafeDiscount'),
+      indoorSale: val('fIndoorSale'), indoorDashboardSale: val('fIndoorDashboardSale'), indoorOnline: val('fIndoorOnline'), indoorCash: val('fIndoorCash'), indoorExpense: val('fIndoorExpense'), indoorFoc: val('fIndoorFoc'), indoorDiscount: val('fIndoorDiscount'),
+      adventureSale: val('fAdventureSale'), adventureExpense: val('fAdventureExpense'), adventureDiscount: val('fAdventureDiscount'),
+      entryOnline: val('fEntryOnline'), entryCash: val('fEntryCash'), entryFoc: val('fEntryFoc'), entryDiscount: val('fEntryDiscount'),
+      cafeOnline: val('fCafeOnline'), cafeCash: val('fCafeCash'), cafeFoc: val('fCafeFoc'), cafeDiscount: val('fCafeDiscount'),
     };
     const res = await fetch(DATA_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
     const result = await res.json();
@@ -363,7 +441,6 @@ document.getElementById('submitEntryBtn').addEventListener('click', async () => 
   }
 });
 
-// ---------- Add Cafe FOC guest ----------
 document.getElementById('submitFocBtn').addEventListener('click', async () => {
   const date = document.getElementById('focDate').value;
   const name = document.getElementById('focName').value.trim();
@@ -399,7 +476,7 @@ function showMsg(elId, text, cls){
   msg.textContent = text; msg.className = 'form-msg ' + cls; msg.style.display = 'block';
 }
 
-// ---------- Period selector ----------
+// ---------- Period tabs ----------
 document.getElementById('periodSeg').addEventListener('click', (e)=>{
   const btn = e.target.closest('button'); if(!btn) return;
   period = btn.dataset.p;
@@ -418,22 +495,12 @@ function baseScales(extra){
     y: { grid:{ color:gridColor, drawTicks:false }, border:{display:false}, beginAtZero:true }
   }, extra||{});
 }
-let trendChart, shareChart, payChart;
+let trendChart;
 function initCharts(){
   trendChart = new Chart(document.getElementById('trendChart'), {
     type:'bar',
     data:{ labels:[], datasets: CATS.map(c => ({ label:c.label, data:[], backgroundColor:c.color, stack:'s', borderRadius:2 })) },
     options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => `${ctx.dataset.label}: ${fmtMoney(ctx.parsed.y)}` } } }, scales: baseScales({ x:{...baseScales().x, stacked:true}, y:{...baseScales().y, stacked:true} }) }
-  });
-  shareChart = new Chart(document.getElementById('shareChart'), {
-    type:'doughnut',
-    data:{ labels:CATS.map(c=>c.label), datasets:[{ data:CATS.map(()=>0), backgroundColor:CATS.map(c=>c.color), borderColor:'#FFFFFF', borderWidth:3 }] },
-    options:{ responsive:true, maintainAspectRatio:false, cutout:'64%', plugins:{ legend:{ position:'bottom', labels:{ boxWidth:8, boxHeight:8, padding:8, font:{size:10.5} } }, tooltip:{ callbacks:{ label: ctx => `${ctx.label}: ${fmtMoney(ctx.parsed)}` } } } }
-  });
-  payChart = new Chart(document.getElementById('payChart'), {
-    type:'doughnut',
-    data:{ labels:['Cash','Online'], datasets:[{ data:[0,0], backgroundColor:['#B8B7AE','#141412'], borderColor:'#FFFFFF', borderWidth:3 }] },
-    options:{ responsive:true, maintainAspectRatio:false, cutout:'64%', plugins:{ legend:{ position:'bottom', labels:{ boxWidth:8, boxHeight:8, padding:10 } }, tooltip:{ callbacks:{ label: ctx => `${ctx.label}: ${fmtMoney(ctx.parsed)}` } } } }
   });
 }
 
@@ -442,58 +509,68 @@ function parseAll(){ return entries.map(e => ({...e, _d: parseDateKey(e.date)}))
 function sumField(rows, field, s, e){ return rows.filter(r=>inRange(r._d,s,e)).reduce((a,r)=>a+(r[field]||0),0); }
 function sumCat(rows, fn, s, e){ return rows.filter(r=>inRange(r._d,s,e)).reduce((a,r)=>a+fn(r),0); }
 
+function computeTotals(rows, s, e){
+  const totalOnline = sumField(rows,'indoorOnline',s,e) + sumField(rows,'entryOnline',s,e) + sumField(rows,'cafeOnline',s,e);
+  const totalCash = sumField(rows,'indoorCash',s,e) + sumField(rows,'entryCash',s,e) + sumField(rows,'cafeCash',s,e);
+  const totalExpense = sumField(rows,'indoorExpense',s,e) + sumField(rows,'adventureExpense',s,e);
+  const totalDiscount = sumField(rows,'indoorDiscount',s,e) + sumField(rows,'entryDiscount',s,e) + sumField(rows,'cafeDiscount',s,e) + sumField(rows,'adventureDiscount',s,e);
+  const totalSale = CATS.reduce((a,c)=>a+sumCat(rows,c.sale,s,e),0);
+  const saleAfterExpense = totalSale - totalExpense;
+  const totalCashAfterExpense = totalCash - totalExpense;
+  const focRows = focEntries.map(f => ({...f, _d: parseDateKey(f.date)})).filter(f => inRange(f._d,s,e));
+  const focCafeTotal = focRows.reduce((a,f)=>a+(f.amount||0),0);
+  return { totalOnline, totalCash, totalExpense, totalDiscount, totalSale, saleAfterExpense, totalCashAfterExpense, focCafeTotal };
+}
+
 // ---------- Render ----------
 function renderAll(){
   const rows = parseAll();
-  const {s,e,label} = periodBounds(period);
-  document.getElementById('periodSub').textContent = entries.length ? `Showing ${label}` : '';
+  const {s,e} = periodBounds(period);
+  const prevBounds = previousPeriodBounds(period);
+  const cur = computeTotals(rows, s, e);
+  const prev = prevBounds ? computeTotals(rows, prevBounds.s, prevBounds.e) : null;
 
-  const totalIndoor = sumCat(rows, CATS[0].sale, s, e);
-  const totalEntry = sumCat(rows, CATS[1].sale, s, e);
-  const totalCafe = sumCat(rows, CATS[2].sale, s, e);
-  const outdoorSale = sumField(rows,'outdoorSale',s,e);
-  const totalOnline = sumField(rows,'indoorOnline',s,e) + sumField(rows,'entryOnline',s,e) + sumField(rows,'cafeOnline',s,e);
-  const totalCash = sumField(rows,'indoorCash',s,e) + sumField(rows,'entryCash',s,e) + sumField(rows,'cafeCash',s,e);
-  const totalPayment = totalOnline + totalCash + outdoorSale;
-  const cardsSold = sumField(rows,'cardsSold',s,e);
-  const couponSold = sumField(rows,'couponSold',s,e);
-  const focRows = focEntries.map(f => ({...f, _d: parseDateKey(f.date)})).filter(f => inRange(f._d,s,e));
-  const focCafeTotal = focRows.reduce((a,f)=>a+(f.amount||0),0);
+  const kpis = [
+    { label:'Total online sale', val: cur.totalOnline, prevVal: prev ? prev.totalOnline : null },
+    { label:'Total cash sale',   val: cur.totalCash,   prevVal: prev ? prev.totalCash : null },
+    { label:'Expense',           val: cur.totalExpense,prevVal: prev ? prev.totalExpense : null },
+    { label:'FOC (Cafe)',        val: cur.focCafeTotal,prevVal: prev ? prev.focCafeTotal : null },
+    { label:'Discount',          val: cur.totalDiscount,prevVal: prev ? prev.totalDiscount : null },
+    { label:'Total sale',        val: cur.totalSale,   prevVal: prev ? prev.totalSale : null },
+    { label:'Sale after expense',val: cur.saleAfterExpense, prevVal: prev ? prev.saleAfterExpense : null },
+    { label:'Total cash after expense', val: cur.totalCashAfterExpense, prevVal: prev ? prev.totalCashAfterExpense : null },
+  ];
+  document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
+    <div class="kpi-v2">
+      <div class="lbl">${k.label}</div>
+      <div class="num">${fmtMoney(k.val)}</div>
+      ${deltaHtml(k.val, k.prevVal)}
+    </div>`).join('');
 
-  document.getElementById('misGrid').innerHTML = `
-    <div class="mis-cell"><div class="lbl">Total online</div><div class="num">${fmtMoney(totalOnline)}</div></div>
-    <div class="mis-cell"><div class="lbl">Total cash</div><div class="num">${fmtMoney(totalCash)}</div></div>
-    <div class="mis-cell"><div class="lbl">Total payment</div><div class="num">${fmtMoney(totalPayment)}</div></div>
-    <div class="mis-cell"><div class="lbl">Cards sold</div><div class="num">${cardsSold.toLocaleString()}</div></div>
-    <div class="mis-cell"><div class="lbl">Coupon sold</div><div class="num">${couponSold.toLocaleString()}</div></div>
-    <div class="mis-cell"><div class="lbl">FOC Cafe total</div><div class="num">${fmtMoney(focCafeTotal)}</div></div>`;
-
-  document.getElementById('catGrid').innerHTML = CATS.map(cat => {
+  // Category cards, ordered Online → Cash → Expense → FOC → Discount to match the MIS sheet sequence, each with a share-of-total bar
+  const catTotalSale = CATS.reduce((a,c)=>a+sumCat(rows,c.sale,s,e),0);
+  document.getElementById('catGridV2').innerHTML = CATS.map(cat => {
     const sale = sumCat(rows,cat.sale,s,e);
     const online = sumCat(rows,cat.online,s,e);
     const cash = sumCat(rows,cat.cash,s,e);
-    let rowsHtml = `<div><span>Online</span><b>${fmtMoney(online)}</b></div><div><span>Cash</span><b>${fmtMoney(cash)}</b></div>`;
-    if(cat.key==='indoor'){
-      const dashSale = sumField(rows,'indoorDashboardSale',s,e);
-      const foc = sumField(rows,'indoorFoc',s,e);
-      const disc = sumField(rows,'indoorDiscount',s,e);
-      const exp = sumField(rows,'indoorExpense',s,e);
-      rowsHtml += `<div><span>Dashboard sale (ref.)</span><b>${fmtMoney(dashSale)}</b></div><div><span>FOC</span><b>${fmtMoney(foc)}</b></div><div><span>Discount</span><b>${fmtMoney(disc)}</b></div><div><span>Expense</span><b>${fmtMoney(exp)}</b></div>`;
-    }
-    if(cat.key==='entry'){
-      const foc = sumField(rows,'entryFoc',s,e); const disc = sumField(rows,'entryDiscount',s,e);
-      rowsHtml += `<div><span>FOC</span><b>${fmtMoney(foc)}</b></div><div><span>Discount</span><b>${fmtMoney(disc)}</b></div>`;
-    }
-    if(cat.key==='cafe'){
-      const foc = sumField(rows,'cafeFoc',s,e); const disc = sumField(rows,'cafeDiscount',s,e);
-      rowsHtml += `<div><span>FOC</span><b>${fmtMoney(foc)}</b></div><div><span>Discount</span><b>${fmtMoney(disc)}</b></div>`;
-    }
-    if(cat.key==='outdoor'){
-      rowsHtml = `<div>${outdoorSale}</div>`;
-    }
-    return `<div class="cat-card">
+    const expense = cat.key==='indoor' ? sumField(rows,'indoorExpense',s,e) : (cat.key==='adventure' ? sumField(rows,'adventureExpense',s,e) : 0);
+    const foc = cat.key==='indoor' ? sumField(rows,'indoorFoc',s,e) : cat.key==='entry' ? sumField(rows,'entryFoc',s,e) : cat.key==='cafe' ? sumField(rows,'cafeFoc',s,e) : 0;
+    const discount = cat.key==='indoor' ? sumField(rows,'indoorDiscount',s,e) : cat.key==='entry' ? sumField(rows,'entryDiscount',s,e) : cat.key==='cafe' ? sumField(rows,'cafeDiscount',s,e) : sumField(rows,'adventureDiscount',s,e);
+    const sharePct = catTotalSale > 0 ? (sale/catTotalSale)*100 : 0;
+
+    const rowsHtml = [
+      cat.key!=='adventure' ? `<div><span>Online</span><b>${fmtMoney(online)}</b></div>` : '',
+      cat.key!=='adventure' ? `<div><span>Cash</span><b>${fmtMoney(cash)}</b></div>` : '',
+      (cat.key==='indoor' || cat.key==='adventure') ? `<div><span>Expense</span><b>${fmtMoney(expense)}</b></div>` : '',
+      cat.key!=='adventure' ? `<div><span>FOC</span><b>${fmtMoney(foc)}</b></div>` : '',
+      `<div><span>Discount</span><b>${fmtMoney(discount)}</b></div>`,
+    ].join('');
+
+    return `<div class="cat-card-v2">
       <div class="top"><span class="dot" style="background:${cat.color}"></span><span class="name">${cat.label}</span></div>
       <div class="sale">${fmtMoney(sale)}</div>
+      <div class="share-bar"><div class="share-bar-fill" style="width:${sharePct}%; background:${cat.color};"></div></div>
+      <div class="share-label">${sharePct.toFixed(0)}% of total sale</div>
       <div class="rows">${rowsHtml}</div>
     </div>`;
   }).join('');
@@ -511,47 +588,11 @@ function renderAll(){
   trendChart.update();
   document.getElementById('trendLegend').innerHTML = CATS.map(c => `<span><i style="background:${c.color}"></i>${c.label}</span>`).join('');
 
-  shareChart.data.datasets[0].data = CATS.map(cat => sumCat(rows,cat.sale,s,e));
-  shareChart.update();
-
-  payChart.data.datasets[0].data = [totalCash, totalOnline];
-  payChart.update();
-
-  const focSorted = [...focRows].sort((a,b)=> b.date.localeCompare(a.date)).slice(0,100);
+  const focRowsForTable = focEntries.map(f => ({...f, _d: parseDateKey(f.date)})).filter(f => inRange(f._d,s,e));
+  const focSorted = [...focRowsForTable].sort((a,b)=> b.date.localeCompare(a.date)).slice(0,100);
   document.getElementById('focTable').innerHTML = focSorted.length ? `<table><thead><tr><th>Date</th><th>Name/Ref.</th><th>Amount</th></tr></thead><tbody>${
     focSorted.map(f=>`<tr><td>${fmtDate(f.date)}</td><td>${escapeHtml(f.name)}</td><td>${fmtMoney(f.amount)}</td></tr>`).join('')
   }</tbody></table>` : '<div class="empty">No FOC Cafe entries for this period yet.</div>';
-
-  const tableRows = [...entries].filter(r=>inRange(parseDateKey(r.date),s,e)).sort((a,b)=> b.date.localeCompare(a.date) || Number(b.id)-Number(a.id)).slice(0,150);
-  document.getElementById('entryTable').innerHTML = tableHtml(tableRows);
-}
-
-function tableHtml(rows){
-  if(rows.length===0) return '<div class="empty">No rows for this period yet.</div>';
-  const body = rows.map(r => {
-    const totalIndoor = r.indoorOnline + r.indoorCash;
-    const totalEntry = r.entryCash + r.entryOnline;
-    const totalCafeSale = r.cafeCash + r.cafeOnline;
-    const total = totalIndoor + r.outdoorSale + totalEntry + totalCafeSale;
-    return `<tr>
-      <td>${fmtDate(r.date)}</td>
-      <td class="muted-cell">${fmtMoney(r.indoorSale)}</td><td class="muted-cell">${fmtMoney(r.indoorDashboardSale)}</td><td>${fmtMoney(r.indoorOnline)}</td><td>${fmtMoney(r.indoorCash)}</td><td class="muted-cell">${fmtMoney(r.indoorFoc)}</td><td class="muted-cell">${fmtMoney(r.indoorDiscount)}</td><td class="muted-cell">${fmtMoney(r.indoorExpense)}</td><td>${fmtMoney(totalIndoor)}</td>
-      <td>${fmtMoney(r.outdoorSale)}</td>
-      <td>${r.cardsSold}</td><td>${r.couponSold}</td>
-      <td>${fmtMoney(r.entryCash)}</td><td>${fmtMoney(r.entryOnline)}</td><td class="muted-cell">${fmtMoney(r.entryFoc)}</td><td class="muted-cell">${fmtMoney(r.entryDiscount)}</td><td>${fmtMoney(totalEntry)}</td>
-      <td>${fmtMoney(r.cafeCash)}</td><td>${fmtMoney(r.cafeOnline)}</td><td class="muted-cell">${fmtMoney(r.cafeFoc)}</td><td class="muted-cell">${fmtMoney(r.cafeDiscount)}</td><td>${fmtMoney(totalCafeSale)}</td>
-      <td>${fmtMoney(total)}</td>
-    </tr>`;
-  }).join('');
-  return `<table><thead><tr>
-    <th>Date</th>
-    <th>Ind.Sale</th><th>Ind.DashSale</th><th>Ind.Online</th><th>Ind.Cash</th><th>Ind.FOC</th><th>Ind.Disc</th><th>Ind.Exp</th><th>Total Indoor</th>
-    <th>Outdoor Sale</th>
-    <th>Cards Sold</th><th>Coupon Sold</th>
-    <th>Entry Cash</th><th>Entry Online</th><th>Entry FOC</th><th>Entry Disc</th><th>Total Entry</th>
-    <th>Cafe Cash</th><th>Cafe Online</th><th>Cafe FOC</th><th>Cafe Disc</th><th>Total Cafe</th>
-    <th>Total Payment</th>
-  </tr></thead><tbody>${body}</tbody></table>`;
 }
 
 if(typeof Chart === 'undefined'){
