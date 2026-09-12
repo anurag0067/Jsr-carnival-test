@@ -5,31 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Carnival of Dreams — Sales Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
   :root{
-    --bg:#F4F4F1; --surface:#FFFFFF; --surface-muted:#FAFAF9;
-    --ink:#141412; --ink-muted:#65645D; --ink-faint:#9B9A92;
-    --line:#E1E0D9; --line-strong:#141412;
-    --up:#1f6b3a; --down:#8a1f1f;
+    --bg:#0B0F0D; --surface:#121815; --surface-muted:#0E1310;
+    --ink:#E9EDE7; --ink-muted:#8B9690; --ink-faint:#5E6A62;
+    --line:#233029; --line-strong:#3A4A40;
+    --accent:#FF6A1A; --accent-dim:#B94E15;
+    --up:#33D17A; --down:#FF5C5C;
   }
   *{box-sizing:border-box;}
-  body{margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',-apple-system,sans-serif; font-variant-numeric:tabular-nums;}
-  h1,.num{font-family:'Fraunces',serif;}
-  .btn{border:none; border-radius:9px; padding:10px 16px; font-size:13.5px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:opacity .15s ease, background .15s ease;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:'JetBrains Mono',monospace; font-variant-numeric:tabular-nums;}
+  h1,.num{font-family:'JetBrains Mono',monospace;}
+  .btn{border:none; border-radius:9px; padding:10px 16px; font-size:13.5px; font-weight:700; cursor:pointer; font-family:'JetBrains Mono',monospace; transition:opacity .15s ease, background .15s ease;}
   .btn:hover{opacity:0.85;}
-  .btn-dark{background:var(--ink); color:#fff;}
-  .btn-ghost{background:transparent; border:1px solid var(--line); color:var(--ink-muted);}
+  .btn-dark{background:var(--accent); color:#0B0F0D;}
+  .btn-ghost{background:transparent; border:1px solid var(--line-strong); color:var(--ink-muted);}
   .btn-ghost:hover{background:var(--surface-muted); color:var(--ink); opacity:1;}
 
   .login-gate{position:fixed; inset:0; background:var(--bg); z-index:100; display:flex; align-items:center; justify-content:center; padding:20px;}
   .login-box{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:32px; width:100%; max-width:360px;}
-  .login-box h2{font-family:'Fraunces',serif; font-size:20px; font-weight:600; margin:0 0 6px;}
+  .login-box h2{font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:600; margin:0 0 6px;}
   .login-box p{color:var(--ink-muted); font-size:13px; margin:0 0 22px;}
   .login-box .field{margin-bottom:14px;}
   .login-box label{display:block; font-size:12px; color:var(--ink-muted); margin-bottom:6px;}
-  .login-box input{width:100%; border:1px solid var(--line); border-radius:9px; padding:11px 12px; font-size:14px; font-family:'Inter',sans-serif; color:var(--ink); background:var(--surface-muted);}
+  .login-box input{width:100%; border:1px solid var(--line); border-radius:9px; padding:11px 12px; font-size:14px; font-family:'JetBrains Mono',monospace; color:var(--ink); background:var(--surface-muted);}
   .login-box .btn{width:100%; margin-top:8px; padding:12px;}
   #dashboardRoot{display:none;}
 
@@ -37,11 +38,16 @@
   .app-shell{display:flex; align-items:flex-start; min-height:100vh;}
   .sidebar{width:220px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--line); padding:22px 14px; display:flex; flex-direction:column; position:sticky; top:0; height:100vh;}
   .sidebar-brand{display:flex; align-items:center; gap:10px; padding:0 8px; margin-bottom:26px;}
-  .brand-badge{width:36px; height:36px; background:var(--ink); color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-weight:600; font-size:14px; flex-shrink:0;}
+  .brand-badge{width:56px; height:56px; background:var(--accent); color:#0B0F0D; border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px; flex-shrink:0;}
+  /* Placeholder for your own logo. To use an image: replace the <div class="brand-badge brand-badge-placeholder">
+     in the HTML with <img class="brand-badge" src="your-logo-url-or-base64-data-uri" alt="Logo">
+     (keep the brand-badge class so it's sized/positioned correctly). */
+  .brand-badge-placeholder{background:var(--surface); border:1.5px dashed var(--line-strong); position:relative;}
+  .brand-badge-placeholder::after{content:'LOGO'; font-size:9px; color:var(--ink-faint); letter-spacing:0.05em;}
   .sidebar-brand .name{font-size:14px; font-weight:700; line-height:1.2;}
   .sidebar-nav{display:flex; flex-direction:column; gap:2px;}
   .nav-item{display:block; padding:10px 12px; border-radius:8px; color:var(--ink-muted); font-size:13.5px; font-weight:600; text-decoration:none; cursor:pointer; border-left:2.5px solid transparent; transition:background .15s ease, color .15s ease;}
-  .nav-item.active{background:var(--surface-muted); color:var(--ink); border-left-color:var(--ink);}
+  .nav-item.active{background:var(--accent); color:#0B0F0D; border-left-color:var(--accent); font-weight:700;}
   .nav-item:hover{color:var(--ink);}
   .sidebar-bottom{margin-top:auto; border-top:1px solid var(--line); padding-top:14px;}
   .user-chip{font-size:12px; color:var(--ink-muted); padding:0 8px; margin-bottom:10px; line-height:1.5;}
@@ -53,29 +59,29 @@
   .page-header{padding:28px 32px 0;}
   .page-header h1{font-size:26px; font-weight:600; margin:0;}
 
-  .tab-row{display:flex; gap:26px; padding:0 32px; border-bottom:1px solid var(--line); margin-top:18px; align-items:center; justify-content:space-between;}
-  .tabs-left{display:flex; gap:26px;}
-  .tab-row button.tab-btn{background:none; border:none; padding:12px 2px; font-size:13.5px; font-weight:600; color:var(--ink-muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; font-family:'Inter',sans-serif; transition:color .15s ease, border-color .15s ease;}
-  .tab-row button.tab-btn:hover{color:var(--ink);}
-  .tab-row button.tab-btn.active{color:var(--ink); border-bottom-color:var(--ink);}
+  .tab-row{display:flex; gap:10px; padding:0 32px; border-bottom:none; margin-top:18px; align-items:center; justify-content:space-between;}
+  .tabs-left{display:flex; gap:10px;}
+  .tab-row button.tab-btn{background:var(--surface); border:1px solid var(--line); padding:10px 18px; font-size:13px; font-weight:700; color:var(--ink-muted); cursor:pointer; border-radius:9px; margin-bottom:0; font-family:'JetBrains Mono',monospace; transition:background .15s ease, color .15s ease, border-color .15s ease;}
+  .tab-row button.tab-btn:hover{color:var(--ink); border-color:var(--line-strong);}
+  .tab-row button.tab-btn.active{background:var(--accent); color:#0B0F0D; border-color:var(--accent);}
 
-  .banner{background:var(--ink); color:#fff; border-radius:10px; padding:12px 16px; font-size:13px; margin:20px 32px 0; display:none;}
+  .banner{background:var(--surface); border:1px solid var(--accent); color:var(--ink); border-radius:10px; padding:12px 16px; font-size:13px; margin:20px 32px 0; display:none;}
   .banner code{background:rgba(255,255,255,0.15); padding:2px 6px; border-radius:4px;}
 
   .kpi-row-v2{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; padding:24px 32px 0;}
-  .kpi-v2{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 20px; box-shadow:0 1px 2px rgba(20,20,18,0.04); transition:box-shadow .15s ease;}
-  .kpi-v2:hover{box-shadow:0 2px 8px rgba(20,20,18,0.07);}
-  .kpi-v2 .lbl{font-size:12px; color:var(--ink-muted); margin-bottom:9px;}
-  .kpi-v2 .num{font-size:23px; font-weight:600;}
-  .kpi-v2 .delta{font-size:11.5px; margin-top:8px;}
+  .kpi-v2{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:13px 15px;  transition:box-shadow .15s ease;}
+  .kpi-v2:hover{border-color:var(--line-strong);}
+  .kpi-v2 .lbl{font-size:11px; color:var(--ink-muted); margin-bottom:6px;}
+  .kpi-v2 .num{font-size:18px; font-weight:700; color:var(--accent);}
+  .kpi-v2 .delta{font-size:10.5px; margin-top:5px;}
   .kpi-v2 .delta.up{color:var(--up);}
   .kpi-v2 .delta.down{color:var(--down);}
   .kpi-v2 .delta.flat{color:var(--ink-faint);}
 
-  .section-title{font-family:'Fraunces',serif; font-size:17px; font-weight:600; margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .section-title{font-family:'JetBrains Mono',monospace; font-size:17px; font-weight:600; margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
   .section{padding:0 32px; margin-top:32px;}
 
-  .card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px; box-shadow:0 1px 2px rgba(20,20,18,0.04);}
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px; }
   .card-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
   .card-title{font-size:13.5px; font-weight:600; color:var(--ink);}
   .chart-box{position:relative; height:240px;}
@@ -84,20 +90,20 @@
   .legend-row i{width:8px; height:8px; border-radius:2px; display:inline-block;}
 
   /* Category table + donut, side by side like the reference */
-  .cat-grid-v2{display:grid; grid-template-columns:repeat(auto-fit, minmax(250px,1fr)); gap:14px;}
-  .cat-card-v2{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px; box-shadow:0 1px 2px rgba(20,20,18,0.04);}
-  .cat-card-v2 .top{display:flex; align-items:center; gap:8px; margin-bottom:10px;}
-  .cat-card-v2 .dot{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
-  .cat-card-v2 .name{font-size:13px; font-weight:600; color:var(--ink-muted);}
-  .cat-card-v2 .sale{font-size:24px; font-weight:600; font-family:'Fraunces',serif;}
-  .cat-card-v2 .share-bar{height:6px; background:var(--bg); border-radius:3px; overflow:hidden; margin:12px 0 6px;}
-  .cat-card-v2 .share-bar-fill{height:100%; border-radius:3px;}
-  .cat-card-v2 .share-label{font-size:11px; color:var(--ink-faint); margin-bottom:16px;}
-  .cat-card-v2 .rows{font-size:12px; color:var(--ink-muted); border-top:1px solid var(--bg); padding-top:12px;}
-  .cat-card-v2 .rows div{display:flex; justify-content:space-between; padding:4px 0;}
+  .cat-grid-v2{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:12px;}
+  .cat-card-v2{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:15px 16px; }
+  .cat-card-v2 .top{display:flex; align-items:center; gap:7px; margin-bottom:8px;}
+  .cat-card-v2 .dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+  .cat-card-v2 .name{font-size:12px; font-weight:600; color:var(--ink-muted);}
+  .cat-card-v2 .sale{font-size:19px; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--accent);}
+  .cat-card-v2 .share-bar{height:5px; background:var(--bg); border-radius:3px; overflow:hidden; margin:9px 0 5px;}
+  .cat-card-v2 .share-bar-fill{height:100%; border-radius:3px; background:var(--accent) !important;}
+  .cat-card-v2 .share-label{font-size:10.5px; color:var(--ink-faint); margin-bottom:11px;}
+  .cat-card-v2 .rows{font-size:11.5px; color:var(--ink-muted); border-top:1px solid var(--bg); padding-top:9px;}
+  .cat-card-v2 .rows div{display:flex; justify-content:space-between; padding:3px 0;}
   .cat-card-v2 .rows b{color:var(--ink); font-weight:600;}
 
-  .table-wrap{max-height:420px; overflow:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface); box-shadow:0 1px 2px rgba(20,20,18,0.04);}
+  .table-wrap{max-height:420px; overflow:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface); }
   table{width:100%; border-collapse:collapse; font-size:12px;}
   th{text-align:right; font-size:10.5px; color:var(--ink-muted); font-weight:600; padding:10px 11px; border-bottom:1px solid var(--line-strong); white-space:nowrap; position:sticky; top:0; background:var(--surface);}
   th:first-child, th:last-child{text-align:left;}
@@ -113,7 +119,7 @@
   .fieldset-title:first-of-type{margin-top:0;}
   .form-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:6px;}
   .field label{display:block; font-size:11.5px; color:var(--ink-muted); margin-bottom:5px;}
-  .field input{width:100%; border:1px solid var(--line); border-radius:8px; padding:9px 10px; font-size:13px; font-family:'Inter',sans-serif; color:var(--ink); background:var(--surface-muted);}
+  .field input{width:100%; border:1px solid var(--line); border-radius:8px; padding:9px 10px; font-size:13px; font-family:'JetBrains Mono',monospace; color:var(--ink); background:var(--surface-muted);}
   .form-msg{font-size:12.5px; margin-top:12px; display:none;}
   .form-msg.err{color:var(--down);}
   .form-msg.ok{color:var(--up);}
@@ -143,13 +149,14 @@
 
     <aside class="sidebar">
       <div class="sidebar-brand">
-        <div class="brand-badge">CD</div>
+        <div class="brand-badge brand-badge-placeholder" title="Drop your logo here"></div>
         <div class="name">Carnival of<br>Dreams</div>
       </div>
       <nav class="sidebar-nav">
         <a class="nav-item active" data-target="secOverview">Overview</a>
         <a class="nav-item" data-target="secCategory">By category</a>
-        <a class="nav-item" data-target="secFoc">FOC log</a>
+        <a class="nav-item" data-target="secFoc">Cafe FOC</a>
+        <a class="nav-item" data-target="secFocIndoor">Indoor FOC</a>
       </nav>
       <div class="sidebar-bottom">
         <div class="user-chip"><b id="sessionLabel">Viewer</b>session</div>
@@ -159,8 +166,9 @@
 
     <div class="main-content">
       <div class="page-header">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-          <h1>Reports</h1>
+                  <img src="/jsr-logo.png" alt="Carnival" style="width:12%; height:auto; display:block; margin-bottom:10px; border-radius: 13px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; flex-direction: column;">
+          <h1>Carnival of dreams -Sales Dashboard</h1>
           <button class="btn btn-dark" id="toggleFormBtn" style="display:none;">+ Add entry</button>
         </div>
       </div>
@@ -234,6 +242,18 @@
           <button class="btn btn-dark" id="submitFocBtn" style="margin-top:16px;">Save FOC entry</button>
           <div class="form-msg" id="focFormMsg"></div>
         </div>
+
+        <div class="add-form" id="focIndoorForm" style="display:none;">
+          <h2 class="section-title" style="border-bottom:none; margin-bottom:6px;">Add an Indoor FOC guest</h2>
+          <div class="hint">Each complimentary Indoor guest is logged individually — feeds the named FOC list and its total below.</div>
+          <div class="form-grid" style="grid-template-columns:repeat(3,1fr);">
+            <div class="field"><label>Date</label><input type="date" id="focIndoorDate"></div>
+            <div class="field"><label>Name / Ref.</label><input type="text" id="focIndoorName" placeholder="e.g. Gunakesh Sir"></div>
+            <div class="field"><label>Amount (₹)</label><input type="number" id="focIndoorAmount" min="0"></div>
+          </div>
+          <button class="btn btn-dark" id="submitFocIndoorBtn" style="margin-top:16px;">Save FOC entry</button>
+          <div class="form-msg" id="focIndoorFormMsg"></div>
+        </div>
       </div>
 
       <div id="secOverview">
@@ -258,13 +278,18 @@
         <div class="table-wrap" id="focTable"></div>
       </div>
 
+      <div class="section" id="secFocIndoor" style="margin-bottom:40px;">
+        <h2 class="section-title">Indoor FOC — named log</h2>
+        <div class="table-wrap" id="focIndoorTable"></div>
+      </div>
+
     </div>
   </div>
   </div>
 
 <script>
 // ================= CONFIG =================
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbwiUx22sOS3hjLSHMDlYHcNLptl7grxBABaisLNJpCdh_wQVYsOl_QjxvzJC9_3Kj9UHw/exec';
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbyqBYE2MS6JY1p_XLxYcF1USatmVYdNENhcDUMsN29-Rwx93unoa3usrnw3xsyQLHQBaQ/exec';
 // ============================================
 //
 // Raw inputs per day: Indoor (Sale, Dashboard Sale, Online, Cash, Expense,
@@ -276,14 +301,15 @@ const DATA_URL = 'https://script.google.com/macros/s/AKfycbwiUx22sOS3hjLSHMDlYHc
 // Total Sale, Sale After Expense, etc.) is calculated automatically.
 
 const CATS = [
-  { key:'indoor',    label:'Indoor',        color:'#141412', sale: r => r.indoorOnline+r.indoorCash, online: r => r.indoorOnline, cash: r => r.indoorCash },
-  { key:'entry',     label:'Entry',         color:'#5A5A55', sale: r => r.entryCash+r.entryOnline,    online: r => r.entryOnline,  cash: r => r.entryCash },
-  { key:'cafe',      label:'Cafe',          color:'#8B8A82', sale: r => r.cafeCash+r.cafeOnline,      online: r => r.cafeOnline,   cash: r => r.cafeCash },
-  { key:'adventure', label:'Adventure Sale',color:'#B8B7AE', sale: r => r.adventureSale,              online: () => 0,             cash: () => 0 },
+  { key:'indoor',    label:'Indoor',        color:'#F2F0E6', sale: r => r.indoorOnline+r.indoorCash, online: r => r.indoorOnline, cash: r => r.indoorCash },
+  { key:'entry',     label:'Entry',         color:'#33D17A', sale: r => r.entryCash+r.entryOnline,    online: r => r.entryOnline,  cash: r => r.entryCash },
+  { key:'cafe',      label:'Cafe',          color:'#9D9A8C', sale: r => r.cafeCash+r.cafeOnline,      online: r => r.cafeOnline,   cash: r => r.cafeCash },
+  { key:'adventure', label:'Adventure Sale',color:'#FF6A1A', sale: r => r.adventureSale,              online: () => 0,             cash: () => 0 },
 ];
 
 let entries = [];
 let focEntries = [];
+let focIndoorEntries = [];
 let period = 'today';
 let adminPasswordHash = null;
 
@@ -329,19 +355,21 @@ function sheetConfigured(){ return DATA_URL && DATA_URL.indexOf('PASTE_YOUR') ==
 async function loadData(){
   if(!sheetConfigured()){
     document.getElementById('setupBanner').style.display = 'block';
-    entries = []; focEntries = [];
+    entries = []; focEntries = []; focIndoorEntries = [];
     renderAll();
     return;
   }
   document.getElementById('setupBanner').style.display = 'none';
   try{
-    const [res1, res2] = await Promise.all([
+    const [res1, res2, res3] = await Promise.all([
       fetch(DATA_URL + '?action=list'),
       fetch(DATA_URL + '?action=focList'),
+      fetch(DATA_URL + '?action=focIndoorList'),
     ]);
     if(!res1.ok) throw new Error('fetch failed: ' + res1.status);
     entries = await res1.json();
     focEntries = res2.ok ? await res2.json() : [];
+    focIndoorEntries = res3.ok ? await res3.json() : [];
   }catch(err){
     console.error('Failed to load data', err);
     document.getElementById('setupBanner').style.display = 'block';
@@ -398,12 +426,15 @@ document.querySelectorAll('.nav-item').forEach(item => {
 document.getElementById('toggleFormBtn').addEventListener('click', () => {
   const addForm = document.getElementById('addForm');
   const focForm = document.getElementById('focForm');
+  const focIndoorForm = document.getElementById('focIndoorForm');
   const showing = addForm.style.display !== 'none';
   addForm.style.display = showing ? 'none' : 'block';
   focForm.style.display = showing ? 'none' : 'block';
+  focIndoorForm.style.display = showing ? 'none' : 'block';
   if(!showing){
     if(!document.getElementById('fDate').value) document.getElementById('fDate').value = dateKey(new Date());
     if(!document.getElementById('focDate').value) document.getElementById('focDate').value = dateKey(new Date());
+    if(!document.getElementById('focIndoorDate').value) document.getElementById('focIndoorDate').value = dateKey(new Date());
   }
 });
 document.getElementById('submitEntryBtn').addEventListener('click', async () => {
@@ -471,6 +502,37 @@ document.getElementById('submitFocBtn').addEventListener('click', async () => {
     btn.disabled = false; btn.textContent = 'Save FOC entry';
   }
 });
+
+document.getElementById('submitFocIndoorBtn').addEventListener('click', async () => {
+  const date = document.getElementById('focIndoorDate').value;
+  const name = document.getElementById('focIndoorName').value.trim();
+  const amount = document.getElementById('focIndoorAmount').value;
+  if(!date || !name){ showMsg('focIndoorFormMsg','Date and name are required.', 'err'); return; }
+  if(!adminPasswordHash){ showMsg('focIndoorFormMsg','Admin session not active — please log in again.', 'err'); return; }
+
+  const btn = document.getElementById('submitFocIndoorBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try{
+    const payload = { action:'addFocIndoor', pinHash: adminPasswordHash, date, name, amount };
+    const res = await fetch(DATA_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+    const result = await res.json();
+    if(result.ok){
+      showMsg('focIndoorFormMsg','Added.', 'ok');
+      document.getElementById('focIndoorName').value = '';
+      document.getElementById('focIndoorAmount').value = '';
+      setTimeout(loadData, 1500);
+    } else if(result.error === 'unauthorized'){
+      showMsg('focIndoorFormMsg','Wrong session — please log in again.', 'err');
+    } else {
+      showMsg('focIndoorFormMsg','Something went wrong: ' + (result.error || 'unknown error'), 'err');
+    }
+  } catch(err){
+    console.error(err);
+    showMsg('focIndoorFormMsg','Could not reach the backend.', 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save FOC entry';
+  }
+});
 function showMsg(elId, text, cls){
   const msg = document.getElementById(elId);
   msg.textContent = text; msg.className = 'form-msg ' + cls; msg.style.display = 'block';
@@ -485,10 +547,10 @@ document.getElementById('periodSeg').addEventListener('click', (e)=>{
 });
 
 // ---------- Charts ----------
-Chart.defaults.color = '#65645D';
+Chart.defaults.color = '#8B9690';
 Chart.defaults.font.family = "'Inter', sans-serif";
 Chart.defaults.font.size = 11.5;
-const gridColor = '#EDECE7';
+const gridColor = '#233029';
 function baseScales(extra){
   return Object.assign({
     x: { grid:{ color:gridColor, drawTicks:false }, border:{display:false} },
@@ -519,7 +581,9 @@ function computeTotals(rows, s, e){
   const totalCashAfterExpense = totalCash - totalExpense;
   const focRows = focEntries.map(f => ({...f, _d: parseDateKey(f.date)})).filter(f => inRange(f._d,s,e));
   const focCafeTotal = focRows.reduce((a,f)=>a+(f.amount||0),0);
-  return { totalOnline, totalCash, totalExpense, totalDiscount, totalSale, saleAfterExpense, totalCashAfterExpense, focCafeTotal };
+  const focIndoorRows = focIndoorEntries.map(f => ({...f, _d: parseDateKey(f.date)})).filter(f => inRange(f._d,s,e));
+  const focIndoorTotal = focIndoorRows.reduce((a,f)=>a+(f.amount||0),0);
+  return { totalOnline, totalCash, totalExpense, totalDiscount, totalSale, saleAfterExpense, totalCashAfterExpense, focCafeTotal, focIndoorTotal };
 }
 
 // ---------- Render ----------
@@ -535,6 +599,7 @@ function renderAll(){
     { label:'Total cash sale',   val: cur.totalCash,   prevVal: prev ? prev.totalCash : null },
     { label:'Expense',           val: cur.totalExpense,prevVal: prev ? prev.totalExpense : null },
     { label:'FOC (Cafe)',        val: cur.focCafeTotal,prevVal: prev ? prev.focCafeTotal : null },
+    { label:'FOC (Indoor)',      val: cur.focIndoorTotal,prevVal: prev ? prev.focIndoorTotal : null },
     { label:'Discount',          val: cur.totalDiscount,prevVal: prev ? prev.totalDiscount : null },
     { label:'Total sale',        val: cur.totalSale,   prevVal: prev ? prev.totalSale : null },
     { label:'Sale after expense',val: cur.saleAfterExpense, prevVal: prev ? prev.saleAfterExpense : null },
@@ -593,6 +658,12 @@ function renderAll(){
   document.getElementById('focTable').innerHTML = focSorted.length ? `<table><thead><tr><th>Date</th><th>Name/Ref.</th><th>Amount</th></tr></thead><tbody>${
     focSorted.map(f=>`<tr><td>${fmtDate(f.date)}</td><td>${escapeHtml(f.name)}</td><td>${fmtMoney(f.amount)}</td></tr>`).join('')
   }</tbody></table>` : '<div class="empty">No FOC Cafe entries for this period yet.</div>';
+
+  const focIndoorRowsForTable = focIndoorEntries.map(f => ({...f, _d: parseDateKey(f.date)})).filter(f => inRange(f._d,s,e));
+  const focIndoorSorted = [...focIndoorRowsForTable].sort((a,b)=> b.date.localeCompare(a.date)).slice(0,100);
+  document.getElementById('focIndoorTable').innerHTML = focIndoorSorted.length ? `<table><thead><tr><th>Date</th><th>Name/Ref.</th><th>Amount</th></tr></thead><tbody>${
+    focIndoorSorted.map(f=>`<tr><td>${fmtDate(f.date)}</td><td>${escapeHtml(f.name)}</td><td>${fmtMoney(f.amount)}</td></tr>`).join('')
+  }</tbody></table>` : '<div class="empty">No FOC Indoor entries for this period yet.</div>';
 }
 
 if(typeof Chart === 'undefined'){
