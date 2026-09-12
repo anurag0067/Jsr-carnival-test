@@ -166,7 +166,7 @@
 
     <div class="main-content">
       <div class="page-header">
-                  <img src="https://raw.githubusercontent.com/anurag0067/Jsr-carnival-test/refs/heads/main/jsr-logo.png" alt="Carnival" style="width:12%; height:auto; display:block; margin-bottom:10px; border-radius: 13px;">
+                  <img src="/jsr-logo.png" alt="Carnival" style="width:12%; height:auto; display:block; margin-bottom:10px; border-radius: 13px;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; flex-direction: column;">
           <h1>Carnival of dreams -Sales Dashboard</h1>
           <button class="btn btn-dark" id="toggleFormBtn" style="display:none;">+ Add entry</button>
@@ -274,12 +274,12 @@
       </div>
 
       <div class="section" id="secFoc">
-        <h2 class="section-title">Cafe FOC — named log</h2>
+        <h2 class="section-title">Cafe FOC</h2>
         <div class="table-wrap" id="focTable"></div>
       </div>
 
       <div class="section" id="secFocIndoor" style="margin-bottom:40px;">
-        <h2 class="section-title">Indoor FOC — named log</h2>
+        <h2 class="section-title">Indoor FOC</h2>
         <div class="table-wrap" id="focIndoorTable"></div>
       </div>
 
@@ -340,8 +340,8 @@ function previousPeriodBounds(p){
 function deltaHtml(current, previous){
   if(previous === null) return '';
   if(previous === 0){
-    if(current === 0) return `<div class="delta flat">No change</div>`;
-    return `<div class="delta up">New activity</div>`;
+    if(current === 0) return `<div class="delta flat"></div>`;
+    return `<div class="delta up"></div>`;
   }
   const pct = ((current-previous)/previous)*100;
   const cls = pct > 0.5 ? 'up' : (pct < -0.5 ? 'down' : 'flat');
@@ -595,15 +595,15 @@ function renderAll(){
   const prev = prevBounds ? computeTotals(rows, prevBounds.s, prevBounds.e) : null;
 
   const kpis = [
+    { label:'Sale after expense',val: cur.saleAfterExpense, prevVal: prev ? prev.saleAfterExpense : null },
+    { label:'Total cash after expense', val: cur.totalCashAfterExpense, prevVal: prev ? prev.totalCashAfterExpense : null },
+    { label:'Total sale',        val: cur.totalSale,   prevVal: prev ? prev.totalSale : null },
     { label:'Total online sale', val: cur.totalOnline, prevVal: prev ? prev.totalOnline : null },
     { label:'Total cash sale',   val: cur.totalCash,   prevVal: prev ? prev.totalCash : null },
     { label:'Expense',           val: cur.totalExpense,prevVal: prev ? prev.totalExpense : null },
     { label:'FOC (Cafe)',        val: cur.focCafeTotal,prevVal: prev ? prev.focCafeTotal : null },
     { label:'FOC (Indoor)',      val: cur.focIndoorTotal,prevVal: prev ? prev.focIndoorTotal : null },
     { label:'Discount',          val: cur.totalDiscount,prevVal: prev ? prev.totalDiscount : null },
-    { label:'Total sale',        val: cur.totalSale,   prevVal: prev ? prev.totalSale : null },
-    { label:'Sale after expense',val: cur.saleAfterExpense, prevVal: prev ? prev.saleAfterExpense : null },
-    { label:'Total cash after expense', val: cur.totalCashAfterExpense, prevVal: prev ? prev.totalCashAfterExpense : null },
   ];
   document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
     <div class="kpi-v2">
