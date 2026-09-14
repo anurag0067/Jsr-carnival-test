@@ -1,49 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
+<script>try{var t=localStorage.getItem('cd-theme'); if(t) document.documentElement.setAttribute('data-theme', t);}catch(e){}</script>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Carnival of Dreams — Sales Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
-  :root{
-    --bg:#0B0F0D; --surface:#121815; --surface-muted:#0E1310;
-    --ink:#E9EDE7; --ink-muted:#8B9690; --ink-faint:#5E6A62;
-    --line:#233029; --line-strong:#3A4A40;
-    --accent:#FF6A1A; --accent-dim:#B94E15;
-    --up:#33D17A; --down:#FF5C5C;
+  :root, html[data-theme="dark"]{
+    --bg:#10131A; --surface:#181C25; --surface-muted:#12151D;
+    --ink:#E7EAF0; --ink-muted:#8B93A7; --ink-faint:#5B6272;
+    --line:#262B36; --line-strong:#39404F;
+    --accent:#FF9933; --accent-ink:#1A1200;
+    --up:#22C55E; --down:#F04141;
+    --shadow:0 1px 3px rgba(0,0,0,0.3);
+  }
+  html[data-theme="light"]{
+    --bg:#F2F4F9; --surface:#FFFFFF; --surface-muted:#F7F8FC;
+    --ink:#1F2430; --ink-muted:#6B7280; --ink-faint:#9CA3AF;
+    --line:#E7E9F0; --line-strong:#D3D7E0;
+    --accent:#FF9933; --accent-ink:#1A1200;
+    --up:#16A34A; --down:#DC2626;
+    --shadow:0 1px 3px rgba(31,36,48,0.06);
   }
   *{box-sizing:border-box;}
-  body{margin:0; background:var(--bg); color:var(--ink); font-family:'JetBrains Mono',monospace; font-variant-numeric:tabular-nums;}
-  h1,.num{font-family:'JetBrains Mono',monospace;}
-  .btn{border:none; border-radius:9px; padding:10px 16px; font-size:13.5px; font-weight:700; cursor:pointer; font-family:'JetBrains Mono',monospace; transition:opacity .15s ease, background .15s ease;}
+  body{margin:0; 
+  background:var(--bg); 
+  color:var(--ink); font-family:'Inter',-apple-system,sans-serif; font-variant-numeric:tabular-nums; transition:background .2s ease, color .2s ease;}
+  h1,.num{font-family:'Inter',-apple-system,sans-serif;}
+  .btn{border:none; border-radius:9px; padding:10px 16px; font-size:13.5px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:opacity .15s ease, background .15s ease;}
   .btn:hover{opacity:0.85;}
-  .btn-dark{background:var(--accent); color:#0B0F0D;}
+  .btn-dark{background:var(--accent); color:var(--accent-ink);}
   .btn-ghost{background:transparent; border:1px solid var(--line-strong); color:var(--ink-muted);}
   .btn-ghost:hover{background:var(--surface-muted); color:var(--ink); opacity:1;}
 
   .login-gate{position:fixed; inset:0; background:var(--bg); z-index:100; display:flex; align-items:center; justify-content:center; padding:20px;}
-  .login-box{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:32px; width:100%; max-width:360px;}
-  .login-box h2{font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:600; margin:0 0 6px;}
+  .login-box{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:32px; width:100%; max-width:360px; box-shadow:var(--shadow);}
+  .login-box h2{font-family:'Inter',sans-serif; font-size:20px; font-weight:700; margin:0 0 6px;}
   .login-box p{color:var(--ink-muted); font-size:13px; margin:0 0 22px;}
   .login-box .field{margin-bottom:14px;}
   .login-box label{display:block; font-size:12px; color:var(--ink-muted); margin-bottom:6px;}
-  .login-box input{width:100%; border:1px solid var(--line); border-radius:9px; padding:11px 12px; font-size:14px; font-family:'JetBrains Mono',monospace; color:var(--ink); background:var(--surface-muted);}
+  .login-box input{width:100%; border:1px solid var(--line); border-radius:9px; padding:11px 12px; font-size:14px; font-family:'Inter',sans-serif; color:var(--ink); background:var(--surface-muted);}
   .login-box .btn{width:100%; margin-top:8px; padding:12px;}
   #dashboardRoot{display:none;}
 
+  /* Topbar (search + notifications + theme toggle), like the reference */
+  .topbar-v2{height:60px; background: var(--accent); border-bottom:1px solid var(--line); display:flex; 
+  align-items: center  ; 
+  border-radius: 12px;
+  margin:10px 10px 0 10px;
+  justify-content:space-evenly; padding:0 20px; gap:16px; position:sticky; top:0; z-index:20;}
+  .topbar-icons{display:flex; align-items:center;
+  justify-content: space-between;
+  gap:14px;}
+
+  .theme-toggle{display:flex; align-items:center; gap:8px; background:var(--surface-muted); border:1px solid var(--line); border-radius:20px; padding:4px; cursor:pointer;}
+  .theme-toggle .knob{width:26px; height:26px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; color:#fff; transition:transform .2s ease;}
+  .theme-toggle span{font-size:11px; color:var(--ink-muted); padding:0 6px; font-weight:600;}
+
   /* App shell: sidebar + main */
   .app-shell{display:flex; align-items:flex-start; min-height:100vh;}
-  .sidebar{width:220px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--line); padding:22px 14px; display:flex; flex-direction:column; position:sticky; top:0; height:100vh;}
+  .sidebar{width:220px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--line); padding:22px 14px; display:flex; flex-direction:column; position:sticky; top:60px; height:calc(100vh - 60px);}
   .sidebar-brand{display:flex; align-items:center; gap:10px; padding:0 8px; margin-bottom:26px;}
-  .brand-badge{width:56px; height:56px; background:var(--accent); color:#0B0F0D; border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px; flex-shrink:0;}
-  /* Placeholder for your own logo. To use an image: replace the <div class="brand-badge brand-badge-placeholder">
-     in the HTML with <img class="brand-badge" src="your-logo-url-or-base64-data-uri" alt="Logo">
-     (keep the brand-badge class so it's sized/positioned correctly). */
+  .brand-badge{width:56px; height:56px; background:var(--accent); color:var(--accent-ink); border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:'Inter',sans-serif; font-weight:700; font-size:14px; flex-shrink:0;}
   .brand-badge-placeholder{background:var(--surface); border:1.5px dashed var(--line-strong); position:relative;}
-  .brand-badge-placeholder::after{content:'LOGO'; font-size:9px; color:var(--ink-faint); letter-spacing:0.05em;}
+  .brand-badge-placeholder::after{content:'JSR'; font-size:9px; color:var(--ink-faint); letter-spacing:0.05em;}
+  .carnival-banner-placeholder{max-width:280px; height:70px; border:1.5px dashed var(--line-strong); border-radius:10px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:10.5px; color:var(--ink-faint); letter-spacing:0.03em; margin-bottom:14px; background:var(--surface-muted);}
   .sidebar-brand .name{font-size:14px; font-weight:700; line-height:1.2;}
   .sidebar-nav{display:flex; flex-direction:column; gap:2px;}
   .nav-item{display:block; padding:10px 12px; border-radius:8px; color:var(--ink-muted); font-size:13.5px; font-weight:600; text-decoration:none; cursor:pointer; border-left:2.5px solid transparent; transition:background .15s ease, color .15s ease;}
@@ -57,11 +81,20 @@
   .wrap-inner{max-width:1200px; margin:0 auto; padding:0 32px 60px;}
 
   .page-header{padding:28px 32px 0;}
+.page-header img{
+  max-height: 50%;
+  width: 90%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 25px;
+margin-bottom: 20px;
+}
   .page-header h1{font-size:26px; font-weight:600; margin:0;}
 
   .tab-row{display:flex; gap:10px; padding:0 32px; border-bottom:none; margin-top:18px; align-items:center; justify-content:space-between;}
   .tabs-left{display:flex; gap:10px;}
-  .tab-row button.tab-btn{background:var(--surface); border:1px solid var(--line); padding:10px 18px; font-size:13px; font-weight:700; color:var(--ink-muted); cursor:pointer; border-radius:9px; margin-bottom:0; font-family:'JetBrains Mono',monospace; transition:background .15s ease, color .15s ease, border-color .15s ease;}
+  .tab-row button.tab-btn{background:var(--surface); border:1px solid var(--line); padding:10px 18px; font-size:13px; font-weight:700; color:var(--ink-muted); cursor:pointer; border-radius:9px; margin-bottom:0; font-family:'Inter',sans-serif; transition:background .15s ease, color .15s ease, border-color .15s ease;}
   .tab-row button.tab-btn:hover{color:var(--ink); border-color:var(--line-strong);}
   .tab-row button.tab-btn.active{background:var(--accent); color:#0B0F0D; border-color:var(--accent);}
 
@@ -78,7 +111,7 @@
   .kpi-v2 .delta.down{color:var(--down);}
   .kpi-v2 .delta.flat{color:var(--ink-faint);}
 
-  .section-title{font-family:'JetBrains Mono',monospace; font-size:17px; font-weight:600; margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .section-title{font-family:'Inter',sans-serif; font-size:17px; font-weight:600; margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
   .section{padding:0 32px; margin-top:32px;}
 
   .card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px; }
@@ -95,9 +128,9 @@
   .cat-card-v2 .top{display:flex; align-items:center; gap:7px; margin-bottom:8px;}
   .cat-card-v2 .dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
   .cat-card-v2 .name{font-size:12px; font-weight:600; color:var(--ink-muted);}
-  .cat-card-v2 .sale{font-size:19px; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--accent);}
+  .cat-card-v2 .sale{font-size:19px; font-weight:700; font-family:'Inter',sans-serif; color:var(--accent);}
   .cat-card-v2 .share-bar{height:5px; background:var(--bg); border-radius:3px; overflow:hidden; margin:9px 0 5px;}
-  .cat-card-v2 .share-bar-fill{height:100%; border-radius:3px; background:var(--accent) !important;}
+  .cat-card-v2 .share-bar-fill{height:100%; border-radius:3px;}
   .cat-card-v2 .share-label{font-size:10.5px; color:var(--ink-faint); margin-bottom:11px;}
   .cat-card-v2 .rows{font-size:11.5px; color:var(--ink-muted); border-top:1px solid var(--bg); padding-top:9px;}
   .cat-card-v2 .rows div{display:flex; justify-content:space-between; padding:3px 0;}
@@ -119,7 +152,7 @@
   .fieldset-title:first-of-type{margin-top:0;}
   .form-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:6px;}
   .field label{display:block; font-size:11.5px; color:var(--ink-muted); margin-bottom:5px;}
-  .field input{width:100%; border:1px solid var(--line); border-radius:8px; padding:9px 10px; font-size:13px; font-family:'JetBrains Mono',monospace; color:var(--ink); background:var(--surface-muted);}
+  .field input{width:100%; border:1px solid var(--line); border-radius:8px; padding:9px 10px; font-size:13px; font-family:'Inter',sans-serif; color:var(--ink); background:var(--surface-muted);}
   .form-msg{font-size:12.5px; margin-top:12px; display:none;}
   .form-msg.err{color:var(--down);}
   .form-msg.ok{color:var(--up);}
@@ -145,18 +178,31 @@
   </div>
 
   <div id="dashboardRoot">
+  <div class="topbar-v2" style="justify-content:flex-end;">
+    <div class="topbar-icons">
+      <img src="https://raw.githubusercontent.com/anurag0067/Jsr-carnival-test/refs/heads/main/jsr-logo.png" alt="jsr-logo.jpg" 
+      style="width: 12%; height: 12%; border-radius: 25%;"
+      >
+      <div class="theme-toggle" id="themeToggle">
+        <span id="themeLabelOff">Light</span>
+        <div class="knob" id="themeKnob">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="themeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </div>
+        <span id="themeLabelOn">Dark</span>
+      </div>
+    </div>
+  </div>
   <div class="app-shell">
-
     <aside class="sidebar">
       <div class="sidebar-brand">
-        <div class="brand-badge brand-badge-placeholder" title="Drop your logo here"></div>
-        <div class="name">Carnival of<br>Dreams</div>
+        
       </div>
       <nav class="sidebar-nav">
         <a class="nav-item active" data-target="secOverview">Overview</a>
         <a class="nav-item" data-target="secCategory">By category</a>
         <a class="nav-item" data-target="secFoc">Cafe FOC</a>
         <a class="nav-item" data-target="secFocIndoor">Indoor FOC</a>
+        <a class="nav-item" data-target="secLoginHistory" id="navLoginHistory" style="display:none;">Login history</a>
       </nav>
       <div class="sidebar-bottom">
         <div class="user-chip"><b id="sessionLabel">Viewer</b>session</div>
@@ -166,9 +212,9 @@
 
     <div class="main-content">
       <div class="page-header">
-                  <img src="/jsr-logo.png" alt="Carnival" style="width:12%; height:auto; display:block; margin-bottom:10px; border-radius: 13px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; flex-direction: column;">
-          <h1>Carnival of dreams -Sales Dashboard</h1>
+        <img src="https://raw.githubusercontent.com/anurag0067/Jsr-carnival-test/refs/heads/main/carnival.jpg"/>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <h1>Reports</h1>
           <button class="btn btn-dark" id="toggleFormBtn" style="display:none;">+ Add entry</button>
         </div>
       </div>
@@ -274,13 +320,18 @@
       </div>
 
       <div class="section" id="secFoc">
-        <h2 class="section-title">Cafe FOC</h2>
+        <h2 class="section-title">Cafe FOC — named log</h2>
         <div class="table-wrap" id="focTable"></div>
       </div>
 
       <div class="section" id="secFocIndoor" style="margin-bottom:40px;">
-        <h2 class="section-title">Indoor FOC</h2>
+        <h2 class="section-title">Indoor FOC — named log</h2>
         <div class="table-wrap" id="focIndoorTable"></div>
+      </div>
+
+      <div class="section" id="secLoginHistory" style="margin-bottom:40px; display:none;">
+        <h2 class="section-title">Login history <span style="font-size:11px; font-weight:400; color:var(--ink-faint);">(admin only)</span></h2>
+        <div class="table-wrap" id="loginHistoryTable"></div>
       </div>
 
     </div>
@@ -289,7 +340,7 @@
 
 <script>
 // ================= CONFIG =================
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbyqBYE2MS6JY1p_XLxYcF1USatmVYdNENhcDUMsN29-Rwx93unoa3usrnw3xsyQLHQBaQ/exec';
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbzSgDiRq2m2Ru-erENUTFBTVV3yVUQwa9bqDvhP9395KQc7VFe1eXKvzU4eNAKUXDfYvQ/exec';
 // ============================================
 //
 // Raw inputs per day: Indoor (Sale, Dashboard Sale, Online, Cash, Expense,
@@ -301,11 +352,46 @@ const DATA_URL = 'https://script.google.com/macros/s/AKfycbyqBYE2MS6JY1p_XLxYcF1
 // Total Sale, Sale After Expense, etc.) is calculated automatically.
 
 const CATS = [
-  { key:'indoor',    label:'Indoor',        color:'#F2F0E6', sale: r => r.indoorOnline+r.indoorCash, online: r => r.indoorOnline, cash: r => r.indoorCash },
-  { key:'entry',     label:'Entry',         color:'#33D17A', sale: r => r.entryCash+r.entryOnline,    online: r => r.entryOnline,  cash: r => r.entryCash },
-  { key:'cafe',      label:'Cafe',          color:'#9D9A8C', sale: r => r.cafeCash+r.cafeOnline,      online: r => r.cafeOnline,   cash: r => r.cafeCash },
-  { key:'adventure', label:'Adventure Sale',color:'#FF6A1A', sale: r => r.adventureSale,              online: () => 0,             cash: () => 0 },
+  { key:'indoor',    label:'Indoor',        sale: r => r.indoorOnline+r.indoorCash, online: r => r.indoorOnline, cash: r => r.indoorCash },
+  { key:'entry',     label:'Entry',         sale: r => r.entryCash+r.entryOnline,    online: r => r.entryOnline,  cash: r => r.entryCash },
+  { key:'cafe',      label:'Cafe',          sale: r => r.cafeCash+r.cafeOnline,      online: r => r.cafeOnline,   cash: r => r.cafeCash },
+  { key:'adventure', label:'Adventure Sale',sale: r => r.adventureSale,              online: () => 0,             cash: () => 0 },
 ];
+const CATEGORY_COLORS = {
+  dark:  { indoor:'#60A5FA', entry:'#33D17A', cafe:'#D4A94F', adventure:'#FF6A1A' },
+  light: { indoor:'#3B82F6', entry:'#10B981', cafe:'#F59E0B', adventure:'#EF4444' },
+};
+function getCatColor(key){
+  const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+  return CATEGORY_COLORS[theme][key];
+}
+
+// ---------- Theme toggle ----------
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeLabelOff').style.opacity = theme === 'light' ? '1' : '0.5';
+  document.getElementById('themeLabelOn').style.opacity = theme === 'dark' ? '1' : '0.5';
+  try{ localStorage.setItem('cd-theme', theme); }catch(e){}
+  // Re-theme charts: colors are read from CSS variables, so refresh after the swap.
+  if(typeof Chart !== 'undefined' && trendChart){
+    Chart.defaults.color = cssVar('--ink-muted');
+    gridColor = cssVar('--line');
+    trendChart.options.scales.x.grid.color = gridColor;
+    trendChart.options.scales.y.grid.color = gridColor;
+    CATS.forEach((cat,i)=> trendChart.data.datasets[i].backgroundColor = getCatColor(cat.key));
+    trendChart.update();
+  }
+  renderAll();
+}
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme');
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+});
+(function initThemeLabel(){
+  const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+  document.getElementById('themeLabelOff').style.opacity = theme === 'light' ? '1' : '0.5';
+  document.getElementById('themeLabelOn').style.opacity = theme === 'dark' ? '1' : '0.5';
+})();
 
 let entries = [];
 let focEntries = [];
@@ -340,8 +426,8 @@ function previousPeriodBounds(p){
 function deltaHtml(current, previous){
   if(previous === null) return '';
   if(previous === 0){
-    if(current === 0) return `<div class="delta flat"></div>`;
-    return `<div class="delta up"></div>`;
+    if(current === 0) return `<div class="delta flat">No change</div>`;
+    return `<div class="delta up">New activity</div>`;
   }
   const pct = ((current-previous)/previous)*100;
   const cls = pct > 0.5 ? 'up' : (pct < -0.5 ? 'down' : 'flat');
@@ -361,15 +447,14 @@ async function loadData(){
   }
   document.getElementById('setupBanner').style.display = 'none';
   try{
-    const [res1, res2, res3] = await Promise.all([
-      fetch(DATA_URL + '?action=list'),
-      fetch(DATA_URL + '?action=focList'),
-      fetch(DATA_URL + '?action=focIndoorList'),
-    ]);
-    if(!res1.ok) throw new Error('fetch failed: ' + res1.status);
-    entries = await res1.json();
-    focEntries = res2.ok ? await res2.json() : [];
-    focIndoorEntries = res3.ok ? await res3.json() : [];
+    // One combined request instead of three separate ones — each Apps Script
+    // call has to re-open the spreadsheet, so merging them cuts load time a lot.
+    const res = await fetch(DATA_URL + '?action=listAll');
+    if(!res.ok) throw new Error('fetch failed: ' + res.status);
+    const data = await res.json();
+    entries = data.entries || [];
+    focEntries = data.focCafe || [];
+    focIndoorEntries = data.focIndoor || [];
   }catch(err){
     console.error('Failed to load data', err);
     document.getElementById('setupBanner').style.display = 'block';
@@ -381,10 +466,38 @@ async function loadData(){
 // ---------- Login / logout ----------
 const ADMIN_NAME = 'carnival';
 const ADMIN_PASSWORD_HASH = 'e385ff7a062b6cfb48740016610b22d335e9dae2d3268fbfb4741a3a9346d635';
+let loginLogEntries = [];
 
 async function sha256Hex(str){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+// A persistent per-device ID, so the same visitor's history can be traced across visits.
+function getVisitorId(){
+  try{
+    let id = localStorage.getItem('cd-visitor-id');
+    if(!id){
+      id = Math.random().toString(36).slice(2,10).toUpperCase();
+      localStorage.setItem('cd-visitor-id', id);
+    }
+    return id;
+  }catch(e){ return 'UNKNOWN'; }
+}
+function logLoginAttempt(name){
+  if(!sheetConfigured()) return;
+  const payload = { action:'logLogin', name, id:getVisitorId(), timestamp:new Date().toISOString() };
+  fetch(DATA_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }).catch(()=>{});
+}
+async function loadLoginHistory(){
+  try{
+    const res = await fetch(DATA_URL + '?action=loginLog');
+    loginLogEntries = res.ok ? await res.json() : [];
+  }catch(e){ loginLogEntries = []; }
+  const wrap = document.getElementById('loginHistoryTable');
+  if(!wrap) return;
+  wrap.innerHTML = loginLogEntries.length ? `<table><thead><tr><th>When</th><th>Name</th><th>Visitor ID</th></tr></thead><tbody>${
+    loginLogEntries.slice(0,200).map(l => `<tr><td>${escapeHtml(new Date(l.timestamp).toLocaleString())}</td><td>${escapeHtml(l.name)}</td><td>${escapeHtml(l.id)}</td></tr>`).join('')
+  }</tbody></table>` : '<div class="empty">No login history yet.</div>';
 }
 document.getElementById('loginBtn').addEventListener('click', async () => {
   const name = document.getElementById('loginName').value.trim();
@@ -392,10 +505,16 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
   if(!name || !pass) return;
   const passHash = await sha256Hex(pass);
   const isAdmin = name.toLowerCase() === ADMIN_NAME && passHash === ADMIN_PASSWORD_HASH;
+  logLoginAttempt(name);
   if(isAdmin){
     adminPasswordHash = passHash;
     document.getElementById('toggleFormBtn').style.display = 'inline-block';
     document.getElementById('sessionLabel').textContent = 'Admin';
+    const navItem = document.getElementById('navLoginHistory');
+    if(navItem){ navItem.style.display = 'block'; }
+    const secItem = document.getElementById('secLoginHistory');
+    if(secItem){ secItem.style.display = 'block'; }
+    loadLoginHistory();
   }
   document.getElementById('loginGate').style.display = 'none';
   document.getElementById('dashboardRoot').style.display = 'block';
@@ -405,6 +524,10 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   document.getElementById('toggleFormBtn').style.display = 'none';
   document.getElementById('addForm').style.display = 'none';
   document.getElementById('focForm').style.display = 'none';
+  const navItem = document.getElementById('navLoginHistory');
+  if(navItem){ navItem.style.display = 'none'; }
+  const secItem = document.getElementById('secLoginHistory');
+  if(secItem){ secItem.style.display = 'none'; }
   document.getElementById('sessionLabel').textContent = 'Viewer';
   document.getElementById('dashboardRoot').style.display = 'none';
   document.getElementById('loginGate').style.display = 'flex';
@@ -547,10 +670,11 @@ document.getElementById('periodSeg').addEventListener('click', (e)=>{
 });
 
 // ---------- Charts ----------
-Chart.defaults.color = '#8B9690';
+function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+Chart.defaults.color = cssVar('--ink-muted');
 Chart.defaults.font.family = "'Inter', sans-serif";
 Chart.defaults.font.size = 11.5;
-const gridColor = '#233029';
+let gridColor = cssVar('--line');
 function baseScales(extra){
   return Object.assign({
     x: { grid:{ color:gridColor, drawTicks:false }, border:{display:false} },
@@ -561,7 +685,7 @@ let trendChart;
 function initCharts(){
   trendChart = new Chart(document.getElementById('trendChart'), {
     type:'bar',
-    data:{ labels:[], datasets: CATS.map(c => ({ label:c.label, data:[], backgroundColor:c.color, stack:'s', borderRadius:2 })) },
+    data:{ labels:[], datasets: CATS.map(c => ({ label:c.label, data:[], backgroundColor:getCatColor(c.key), stack:'s', borderRadius:2 })) },
     options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => `${ctx.dataset.label}: ${fmtMoney(ctx.parsed.y)}` } } }, scales: baseScales({ x:{...baseScales().x, stacked:true}, y:{...baseScales().y, stacked:true} }) }
   });
 }
@@ -595,15 +719,15 @@ function renderAll(){
   const prev = prevBounds ? computeTotals(rows, prevBounds.s, prevBounds.e) : null;
 
   const kpis = [
-    { label:'Sale after expense',val: cur.saleAfterExpense, prevVal: prev ? prev.saleAfterExpense : null },
-    { label:'Total cash after expense', val: cur.totalCashAfterExpense, prevVal: prev ? prev.totalCashAfterExpense : null },
-    { label:'Total sale',        val: cur.totalSale,   prevVal: prev ? prev.totalSale : null },
     { label:'Total online sale', val: cur.totalOnline, prevVal: prev ? prev.totalOnline : null },
     { label:'Total cash sale',   val: cur.totalCash,   prevVal: prev ? prev.totalCash : null },
     { label:'Expense',           val: cur.totalExpense,prevVal: prev ? prev.totalExpense : null },
     { label:'FOC (Cafe)',        val: cur.focCafeTotal,prevVal: prev ? prev.focCafeTotal : null },
     { label:'FOC (Indoor)',      val: cur.focIndoorTotal,prevVal: prev ? prev.focIndoorTotal : null },
     { label:'Discount',          val: cur.totalDiscount,prevVal: prev ? prev.totalDiscount : null },
+    { label:'Total sale',        val: cur.totalSale,   prevVal: prev ? prev.totalSale : null },
+    { label:'Sale after expense',val: cur.saleAfterExpense, prevVal: prev ? prev.saleAfterExpense : null },
+    { label:'Total cash after expense', val: cur.totalCashAfterExpense, prevVal: prev ? prev.totalCashAfterExpense : null },
   ];
   document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
     <div class="kpi-v2">
@@ -632,9 +756,9 @@ function renderAll(){
     ].join('');
 
     return `<div class="cat-card-v2">
-      <div class="top"><span class="dot" style="background:${cat.color}"></span><span class="name">${cat.label}</span></div>
+      <div class="top"><span class="dot" style="background:${getCatColor(cat.key)}"></span><span class="name">${cat.label}</span></div>
       <div class="sale">${fmtMoney(sale)}</div>
-      <div class="share-bar"><div class="share-bar-fill" style="width:${sharePct}%; background:${cat.color};"></div></div>
+      <div class="share-bar"><div class="share-bar-fill" style="width:${sharePct}%; background:${getCatColor(cat.key)};"></div></div>
       <div class="share-label">${sharePct.toFixed(0)}% of total sale</div>
       <div class="rows">${rowsHtml}</div>
     </div>`;
@@ -651,7 +775,7 @@ function renderAll(){
   trendChart.data.labels = buckets.map(b=>b.label);
   CATS.forEach((cat,i)=> trendChart.data.datasets[i].data = buckets.map(b => sumCat(rows,cat.sale,b.s,b.e)));
   trendChart.update();
-  document.getElementById('trendLegend').innerHTML = CATS.map(c => `<span><i style="background:${c.color}"></i>${c.label}</span>`).join('');
+  document.getElementById('trendLegend').innerHTML = CATS.map(c => `<span><i style="background:${getCatColor(c.key)}"></i>${c.label}</span>`).join('');
 
   const focRowsForTable = focEntries.map(f => ({...f, _d: parseDateKey(f.date)})).filter(f => inRange(f._d,s,e));
   const focSorted = [...focRowsForTable].sort((a,b)=> b.date.localeCompare(a.date)).slice(0,100);
