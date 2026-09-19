@@ -186,7 +186,7 @@ margin-bottom: 20px;
   <div id="dashboardRoot">
   <div class="topbar-v2" style="justify-content:flex-end;">
     <div class="topbar-icons">
-      <img src="https://raw.githubusercontent.com/anurag0067/Jsr-carnival-test/refs/heads/main/jsr-logo.png" alt="carnival.jpg" 
+      <img src="jsr-logo.png" alt="carnival.jpg" 
       style="width: 12%; height: 12%; border-radius: 25%;"
       >
       <div class="theme-toggle" id="themeToggle">
@@ -218,7 +218,7 @@ margin-bottom: 20px;
 
     <div class="main-content">
       <div class="page-header">
-        <img src="https://raw.githubusercontent.com/anurag0067/Jsr-carnival-test/refs/heads/main/carnival.jpg"/>
+        <img src="carnival.jpg"/>
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
           <h1>Reports</h1>
           <button class="btn btn-dark" id="toggleFormBtn" style="display:none;">+ Add entry</button>
@@ -285,6 +285,12 @@ margin-bottom: 20px;
             <div class="field"><label>Discount (₹)</label><input type="number" id="fCafeDiscount" min="0"></div>
           </div>
 
+          <div class="fieldset-title">Other</div>
+          <div class="form-grid">
+            <div class="field"><label>Deepu Sir expense (₹)</label><input type="number" id="fDeepuSirExpense" min="0"></div>
+            <div class="field" style="grid-column: span 3;"><label>Note</label><input type="text" id="fDeepuSirNote" placeholder="What was this expense for?"></div>
+          </div>
+
           <button class="btn btn-dark" id="submitEntryBtn" style="margin-top:16px;">Save entry</button>
           <div class="form-msg" id="formMsg"></div>
         </div>
@@ -295,7 +301,7 @@ margin-bottom: 20px;
           <div class="form-grid" style="grid-template-columns:repeat(3,1fr);">
             <div class="field"><label>Date</label><input type="date" id="focDate"></div>
             <div class="field"><label>Name / Ref.</label><input type="text" id="focName" placeholder="e.g. Gunakesh Sir"></div>
-            <div class="field"><label>Amount (₹)</label><input type="number" id="focAmount" min="0"></div>
+            <div class="field"><label>Amount (₹)</label><input type="number" id="focAmount" min="0"></<div></div>>
           </div>
           <button class="btn btn-dark" id="submitFocBtn" style="margin-top:16px;">Save FOC entry</button>
           <div class="form-msg" id="focFormMsg"></div>
@@ -352,7 +358,7 @@ margin-bottom: 20px;
 
 <script>
 // ================= CONFIG =================
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbw5jkCLukrHbqyJfPK9X-WAn6J9ZMag2MYvjYX-QkutRWWZMPBBzW7fqVN7OpHmzic3Kw/exec';
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbzHmsmxC3IuZURNPJNdFS3ncvzCIfklx1L_d4gyGDKGy4mdEJzfl7WApFuGhjPtCOBiGQ/exec';
 // ============================================
 //
 // Raw inputs per day: Indoor (Sale, Dashboard Sale, Online, Cash, Expense,
@@ -446,8 +452,8 @@ function previousPeriodBounds(p){
 function deltaHtml(current, previous){
   if(previous === null) return '';
   if(previous === 0){
-    if(current === 0) return `<div class="delta flat">No change</div>`;
-    return `<div class="delta up">New activity</div>`;
+    if(current === 0) return `<div class="delta flat"></div>`;
+    return `<div class="delta up"></div>`;
   }
   const pct = ((current-previous)/previous)*100;
   const cls = pct > 0.5 ? 'up' : (pct < -0.5 ? 'down' : 'flat');
@@ -596,6 +602,7 @@ document.getElementById('submitEntryBtn').addEventListener('click', async () => 
       adventureSale: val('fAdventureSale'), adventureExpense: val('fAdventureExpense'), adventureDiscount: val('fAdventureDiscount'),
       entryOnline: val('fEntryOnline'), entryCash: val('fEntryCash'), entryFoc: val('fEntryFoc'), entryDiscount: val('fEntryDiscount'),
       cafeOnline: val('fCafeOnline'), cafeCash: val('fCafeCash'), cafeFoc: val('fCafeFoc'), cafeDiscount: val('fCafeDiscount'),
+      deepuSirExpense: val('fDeepuSirExpense'), deepuSirNote: val('fDeepuSirNote'),
     };
     const res = await fetch(DATA_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
     const result = await res.json();
@@ -734,11 +741,13 @@ function computeTotals(rows, s, e){
   const totalSale = CATS.reduce((a,c)=>a+sumCat(rows,c.sale,s,e),0);
   const saleAfterExpense = totalSale - totalExpense;
   const totalCashAfterExpense = totalCash - totalExpense;
+  const deepuSirExpense = sumField(rows,'deepuSirExpense',s,e);
+  const totalCashAfterDeepuSir = totalCashAfterExpense - deepuSirExpense;
   const focRows = focEntries.map(f => ({...f, _d: parseDateKey(f.date)})).filter(f => inRange(f._d,s,e));
   const focCafeTotal = focRows.reduce((a,f)=>a+(f.amount||0),0);
   const focIndoorRows = focIndoorEntries.map(f => ({...f, _d: parseDateKey(f.date)})).filter(f => inRange(f._d,s,e));
   const focIndoorTotal = focIndoorRows.reduce((a,f)=>a+(f.amount||0),0);
-  return { totalOnline, totalCash, totalExpense, totalDiscount, totalSale, saleAfterExpense, totalCashAfterExpense, focCafeTotal, focIndoorTotal };
+  return { totalOnline, totalCash, totalExpense, totalDiscount, totalSale, saleAfterExpense, totalCashAfterExpense, deepuSirExpense, totalCashAfterDeepuSir, focCafeTotal, focIndoorTotal };
 }
 
 // ---------- Render ----------
@@ -759,12 +768,15 @@ function renderAll(){
     { label:'Total sale',        val: cur.totalSale,   prevVal: prev ? prev.totalSale : null },
     { label:'Sale after expense',val: cur.saleAfterExpense, prevVal: prev ? prev.saleAfterExpense : null },
     { label:'Total cash after expense', val: cur.totalCashAfterExpense, prevVal: prev ? prev.totalCashAfterExpense : null },
+    { label:'Deepu Sir expense', val: cur.deepuSirExpense, prevVal: prev ? prev.deepuSirExpense : null, note: rows.filter(r=>inRange(r._d,s,e) && r.deepuSirNote).map(r=>r.deepuSirNote).join(' · ') },
+    { label:'Total cash after Deepu Sir expense', val: cur.totalCashAfterDeepuSir, prevVal: prev ? prev.totalCashAfterDeepuSir : null },
   ];
   document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
     <div class="kpi-v2">
       <div class="lbl">${k.label}</div>
       <div class="num">${fmtMoney(k.val)}</div>
       ${deltaHtml(k.val, k.prevVal)}
+      ${k.note ? `<div class="delta flat" style="margin-top:6px;">${escapeHtml(k.note)}</div>` : ''}
     </div>`).join('');
 
   // Category cards, ordered Online → Cash → Expense → FOC → Discount to match the MIS sheet sequence, each with a share-of-total bar
